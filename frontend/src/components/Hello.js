@@ -8,7 +8,7 @@ const DataComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api');
+        const response = await fetch('http://localhost:8000/courses');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -30,8 +30,21 @@ const DataComponent = () => {
   if (!data) return <div>No data available</div>;
 
   return (
-    <div>
-      {data.message}
+    <div className='Margin'>
+      <table style={{ width: '100%' }}>
+      <tbody>
+      {data.map((course) => (
+        <tr key={course.course_id}>
+        <td>
+          {course.name}
+        </td>
+        <td>
+          {course.code}
+        </td>
+        </tr>
+      ))}
+      </tbody>
+      </table>
     </div>
   );
 };

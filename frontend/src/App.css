@@ -46,3 +46,10 @@
   justify-content: space-between;
   align-items: center;
 }
+
+.Margin {
+  margin-left: 10px;
+  width: 99%;
+  height: 100%;
+  overflow: auto;
+}
