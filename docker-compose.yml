@@ -1,0 +1,30 @@
+services:
+  api:
+    tty: true
+    build: ./api
+    command: python -u main.py
+    container_name: PZSP06_api
+    ports:
+      - "8000:8000"
+    expose:
+     - 8000
+    networks: [pzsp06_network]
+
+  frontend:
+    tty: true
+    build: ./frontend
+    container_name: PZSP06_frontend
+    ports:
+      - "8081:3000"
+    expose:
+      - 8081
+    command: ["npm", "start"]
+    restart: always
+    stdin_open: true
+    networks: [pzsp06_network]
+    links:
+      - api
+
+networks:
+  pzsp06_network:
+    name: pzsp06_network
