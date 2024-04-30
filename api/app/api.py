@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .db import get_courses
+# from .db import get_courses
 from dataclasses import dataclass
+from pydantic import BaseModel
 
 
 @dataclass
@@ -22,9 +23,19 @@ app.add_middleware(
 )
 
 
-@app.get("/courses")
-async def root():
-    return [Course(*course) for course in get_courses()]
+# @app.get("/courses")
+# async def root():
+#     return [Course(*course) for course in get_courses()]
+
+
+class Transcription(BaseModel):
+    text: str
+
+
+@app.post("/")
+def main(data: Transcription):
+    return data
+
 
 # Docker
 # pip install fastapi==0.78.0 uvicorn==0.17.6
