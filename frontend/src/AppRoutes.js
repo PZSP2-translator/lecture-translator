@@ -4,7 +4,8 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import ChangePassword from "./components/Password";
 import CreateLecture from "./components/CreateLecture";
-import ChooseLecture from "./components/ChooseLecture"
+import ChooseLecture from "./components/ChooseLecture";
+import LectureView from "./components/LectureView";
 
 const AppRoutes = [
     {
@@ -34,6 +35,10 @@ const AppRoutes = [
     {
     path: '/history',
     element: <ChooseLecture />
+    },
+    {
+    path: '/notes',
+    element: <LectureView />
     },
 
 ];

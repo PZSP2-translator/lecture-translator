@@ -28,9 +28,11 @@ const Header = () => {
           <div className="frame">
             <div className="link" onClick={handleLogout}>Logout</div>
           </div>
-          <div className="frame">
-            <div className="link">Notes</div>
-          </div>
+          <Link to="/notes" className='no-underscore'>
+            <div className="frame">
+              <div className="link">Notes</div>
+            </div>
+          </Link>
           <div className="frame">
             <div className="link">Questions</div>
           </div>
