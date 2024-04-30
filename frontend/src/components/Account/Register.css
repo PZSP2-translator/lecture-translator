@@ -1,0 +1,57 @@
+.component-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    align-self:auto;
+    padding: 5px;
+    font-size: 5xl;
+    text-align: center;
+    color: black;
+  }
+
+  .component-container > *:first-child {
+    margin-top: 100px;
+  }
+
+
+  .component-title {
+    justify-content: center;
+    align-items:start;
+    align-self: stretch;
+    padding: 16px;
+    margin-bottom: 100px;
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: 6xl;
+    white-space: nowrap;
+    border-radius: 10px;
+    background-color: rgba(240, 235, 216, 0.5);
+  }
+
+  input {
+    justify-content: center;
+    align-items:center;
+    padding: 10px 0px;
+    max-width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
+    width: 500px;
+    font-size: calc(10px + 2vmin);
+  }
+
+  button {
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    margin-top: 100px;
+    width: 300px;
+    padding: 10px 0px;
+    background-color: #E1C86D;
+    border-radius: 10px;
+    font-size: calc(10px + 2vmin);
+    cursor:pointer;
+    font-weight: bold;
+  }
