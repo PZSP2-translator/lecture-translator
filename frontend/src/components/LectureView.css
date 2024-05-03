@@ -1,0 +1,129 @@
+.component-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    align-self:auto;
+    padding: 5px;
+    font-size: 5xl;
+    text-align: center;
+    color: black;
+  }
+
+  .component-title {
+    justify-content: center;
+    align-items:start;
+    align-self: stretch;
+    padding: 8px;
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: calc(5px + 2vmin);
+    white-space: nowrap;
+    border-radius: 10px;
+    background-color: rgba(240, 235, 216, 0.5);
+  }
+
+
+  .component-title + .divider {
+    margin-top: -210px  ;
+}
+
+  .divider {
+    display: flex;
+    width: 100%;
+  }
+
+
+  .element {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+
+
+.transcription {
+    justify-content: center;
+    align-items:start;
+    align-self: stretch;
+    padding: 16px;
+    margin-left: 10px;
+    font-size: 6xl;
+    white-space: nowrap;
+    border-radius: 10px;
+    background-color: rgba(240, 235, 216, 0.5);
+    height: 250px;
+}
+
+
+.notes {
+    justify-content: center;
+    align-items:start;
+    align-self: stretch;
+    padding: 16px;
+    font-size: 6xl;
+    white-space: nowrap;
+    border-radius: 10px;
+    background-color: rgba(240, 235, 216, 0.5);
+    height: 400px;
+    resize: none;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    background-color: rgba(240, 235, 216, 0.5);
+    width: 100%;
+    border-radius: 10px;
+
+}
+
+.buttons > button {
+    justify-self:center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 150px;
+    height: 40px;
+    padding: 10px 0px;
+    background-color: #0D1321;
+    color: #DBDEDE;
+    border-radius: 10px;
+    font-size: calc(5px + 2vmin);
+    cursor:pointer;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+
+  .question {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    border-radius: 10px;
+    background-color: rgba(240, 235, 216, 0.5);
+}
+.question input {
+    float: left;
+    margin-left: 5px;
+    width: 89%;
+    background-color: rgba(240, 235, 216, 0.5);
+}
+
+.question button {
+    float: left;
+    margin-top: 0px;
+    margin-right: 5px;
+    width: 9%;
+    border-radius: 20px;
+}

@@ -6,6 +6,7 @@ import ChangePassword from "./components/Password";
 import CreateLecture from "./components/CreateLecture";
 import ChooseLecture from "./components/ChooseLecture";
 import LectureView from "./components/LectureView";
+import Question from "./components/Question";
 
 const AppRoutes = [
     {
@@ -39,6 +40,10 @@ const AppRoutes = [
     {
     path: '/notes',
     element: <LectureView />
+    },
+    {
+    path: '/question',
+    element: <Question />
     },
 
 ];
