@@ -1,5 +1,5 @@
 import React from 'react';
-import "./index.css";
+import "./Homepage.css";
 import { useState } from 'react';
 
 const HomePage = () => {
@@ -15,10 +15,10 @@ const HomePage = () => {
       };
 
     return (
-        <div className="divider">
-            <div className="element">
-                <div className="component-title">Create a new Lecture</div>
-                <div className="enter-box">
+        <div className="divider-homepage">
+            <div className="element-homepage">
+                <div className="component-title-homepage">Create a new Lecture</div>
+                <div className="enter-box-homepage">
                     <h2>Lecuture name:</h2>
                     <input
                         type="text"
@@ -32,9 +32,9 @@ const HomePage = () => {
                     onClick={handleCreate}>Create
                 </button>
             </div>
-            <div className="element">
-                <div className="component-title">Join Lecture by code</div>
-                <div className="enter-box">
+            <div className="element-homepage">
+                <div className="component-title-homepage">Join Lecture by code</div>
+                <div className="enter-box-homepage">
                     <h2>Lecuture code:</h2>
                     <input
                         type="text"

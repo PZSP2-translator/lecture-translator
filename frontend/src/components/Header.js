@@ -5,7 +5,7 @@ import { Link, useNavigate  } from 'react-router-dom';
 
 const Header = () => {
   const navigate = useNavigate();
-
+  const user = false;
   const handleOpen = () => {
 
   }
@@ -25,17 +25,16 @@ const Header = () => {
           <div className="frame">
             <div className="link" onClick={handleOpen}>Open</div>
           </div>
-          <div className="frame">
-            <div className="link" onClick={handleLogout}>Logout</div>
-          </div>
           <Link to="/notes" className='no-underscore'>
             <div className="frame">
               <div className="link">Notes</div>
             </div>
           </Link>
-          <div className="frame">
-            <div className="link">Questions</div>
-          </div>
+          <Link to="/question" className='no-underscore'>
+            <div className="frame">
+              <div className="link">Questions</div>
+            </div>
+          </Link>
           <Link to="/history" className='no-underscore'>
             <div className="frame">
               <div className="link">History</div>
@@ -46,17 +45,24 @@ const Header = () => {
               <div className="link">Codes</div>
             </div>
           </Link>
-          <Link to="/passwd" className='no-underscore'>
-            <div className="frame">
-              <div className="link">Reset Pass</div>
-            </div>
-          </Link>
+          {user && (
+            <>
+              <Link to="/passwd" className='no-underscore'>
+              <div className="frame">
+                <div className="link">Reset Pass</div>
+              </div>
+              </Link>
 
-          <Link to="/login" className='no-underscore'>
-            <div className="frame">
-              <div className="link">Login</div>
-            </div>
-          </Link>
+              <Link to="/login" className='no-underscore'>
+              <div className="frame">
+                <div className="link">Login</div>
+              </div>
+              </Link>
+              <div className="frame">
+              <div className="link" onClick={handleLogout}>Logout</div>
+              </div>
+              </>
+          )}
 
 
         </div>

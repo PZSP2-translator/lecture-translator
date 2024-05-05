@@ -1,5 +1,5 @@
 import React from "react";
-import "./index.css";
+import "./Password.css";
 import { useState } from "react";
 
 
@@ -16,8 +16,8 @@ function ChangePassword() {
     }
   };
   return (
-    <div className="component-container">
-      <div className="component-title">Login</div>
+    <div className="component-container-password">
+      <div className="component-title-password">Change password</div>
       <input
           type="password"
           placeholder="Password"

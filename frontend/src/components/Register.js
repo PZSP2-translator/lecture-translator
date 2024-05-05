@@ -1,5 +1,5 @@
 import React from "react";
-import "./index.css";
+import "./Register.css";
 import { useState } from "react";
 
 
@@ -13,8 +13,8 @@ function Register() {
     console.log(firstname, lastname, username, password);
   };
   return (
-    <div className="component-container">
-      <div className="component-title">Register</div>
+    <div className="component-container-register">
+      <div className="component-title-register">Register</div>
       <input
           type="text"
           placeholder="First name"

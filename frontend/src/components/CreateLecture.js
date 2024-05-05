@@ -1,5 +1,5 @@
 import React from 'react';
-import "./index.css";
+import "./CreateLecture.css";
 import { useState } from 'react';
 
 const CreateLecture = () => {
@@ -8,17 +8,17 @@ const CreateLecture = () => {
     const [lectureCode, SetLectureCode] = useState("12312");
 
     return (
-        <div className="component-container">
-            <div className="component-title">{title}</div>
-                <div className="divider">
-                    <div className="element">
-                        <div className="enter-box">
+        <div className="component-container-createlecture">
+            <div className="component-title-createlecture">{title}</div>
+                <div className="divider-createlecture">
+                    <div className="element-createlecture">
+                        <div className="enter-box-createlecture">
                             <h2>Student code:</h2>
                             {studentCode}
                         </div>
                     </div>
-                    <div className="element">
-                        <div className="enter-box">
+                    <div className="element-createlecture">
+                        <div className="enter-box-createlecture">
                         <h2>Lecture code:</h2>
                             {lectureCode}
                         </div>

@@ -1,4 +1,4 @@
-.component-container {
+.component-container-createlecture {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -11,16 +11,16 @@
     color: black;
   }
 
-  .component-container > *:first-child {
+  .component-container-createlecture > *:first-child {
     margin-top: 100px;
   }
 
 
-  .component-title + .divider {
-    margin-top: -150px;
+  .component-title-createlecture + .divider-createlecture {
+    margin-top: -100px;
   }
 
-  .component-title {
+  .component-title-createlecture {
     justify-content: center;
     align-items:start;
     align-self: stretch;
@@ -36,43 +36,16 @@
 
 
 
-  input {
-    justify-content: center;
-    align-items:center;
-    padding: 10px 0px;
-    max-width: 100%;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
-    width: 500px;
-    font-size: calc(10px + 2vmin);
-  }
-
-  button {
-    justify-content: center;
-    align-items: center;
-    white-space: nowrap;
-    margin-top: 100px;
-    width: 300px;
-    padding: 10px 0px;
-    background-color: #E1C86D;
-    border-radius: 10px;
-    font-size: calc(10px + 2vmin);
-    cursor:pointer;
-    font-weight: bold;
-  }
-
-
-  .divider {
+  .divider-createlecture {
     display: flex;
   }
 
 
-  .divider > * {
+  .divider-createlecture > * {
     margin-top: 100px;
   }
 
-  .element {
+  .element-createlecture {
     flex: 1;
     padding: 10px;
     margin-right: 10px;
@@ -82,7 +55,7 @@
     align-items: center;
   }
 
-  .enter-box {
+  .enter-box-createlecture {
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -95,13 +68,4 @@
     white-space: nowrap;
     border-radius: 10px;
     background-color: rgba(240, 235, 216, 0.5);
-  }
-
-  .enter-box > input {
-    width: 200px;
-  }
-
-  .element > button {
-    margin-top: 10px;
-    width: 150px;
   }

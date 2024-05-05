@@ -1,19 +1,26 @@
 import React from "react";
-import "./index.css";
+import "./Login.css";
 import { useState } from "react";
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 function Login() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const handleRegister = () => {
+    navigate("/register")
+  };
+
+
 
   const handleLogin = () => {
     console.log(username, password);
   };
   return (
-    <div className="component-container">
-      <div className="component-title">Login</div>
+    <div className="component-container-login">
+      <div className="component-title-login">Login</div>
       <input
           type="text"
           placeholder="Username"
@@ -31,11 +38,9 @@ function Login() {
       <button type="submit"
         onClick={handleLogin}>Confirm
       </button>
-      <Link to="/register">
-        <button>
-          Register
-        </button>
-      </Link>
+      <button on onClick={handleRegister}>
+        Register
+      </button>
     </div>
   );
 }
