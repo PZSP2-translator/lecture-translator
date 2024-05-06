@@ -1,4 +1,4 @@
-import multiprocessing
+# import multiprocessing
 import time
 import requests
 
@@ -18,9 +18,8 @@ def send_text(text):
     print(f"Sent: {text}, Response: {response.json()}")
 
 
-if __name__ == "__main__":
-    process = multiprocessing.Process(target=sender)
-    process.start()
-
+# if __name__ == "__main__":
+#     process = multiprocessing.Process(target=sender)
+#     process.start()
 
 # FLOW: microphone(sender(transcribe->translate))
