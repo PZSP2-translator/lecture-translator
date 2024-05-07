@@ -10,8 +10,18 @@ const LectureView = () => {
     const [title, setTitle] = useState("temp");
     const [date, setDate] = useState("01.01.2000");
     const [question, setQuestion] = useState("");
+    const [notes, setNotes] = useState("");
 
     const transcription = ""
+
+    const saveNotes = () => {
+        const element = document.createElement("a");
+        const file = new Blob([notes], {type: 'text/plain'});
+        element.href = URL.createObjectURL(file);
+        element.download = "myNotes.txt";
+        document.body.appendChild(element);
+        element.click();
+    };
 
     const handleQuestion = () => {
         console.log(question);
@@ -32,9 +42,9 @@ const LectureView = () => {
 
                 </div>
                 <div className="element-lectureview">
-                    <textarea className='notes' wrap='soft'></textarea>
+                    <textarea className='notes' value={notes} wrap='soft' onChange={(e) => setNotes(e.target.value)}></textarea>
                     <div className='buttons'>
-                        <button >Save</button>
+                        <button onClick={saveNotes}>Save</button>
                         <button >Open</button>
                         <button >Export</button>
                     </div>
