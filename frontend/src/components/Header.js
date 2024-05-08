@@ -2,12 +2,16 @@ import React from 'react';
 import './Header.css';
 import logoImage from './pzsp2icon.png';
 import { Link, useNavigate  } from 'react-router-dom';
+import { openFile } from './openFile';
 
-const Header = () => {
+const Header = ({ setNotes }) => {
   const navigate = useNavigate();
   const user = false;
   const handleOpen = () => {
-
+    openFile((content) => {
+      navigate("/notes");
+      setNotes(content);
+    });
   }
 
   const handleLogout = () => {

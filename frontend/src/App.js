@@ -1,17 +1,23 @@
+import React, { useState } from 'react';
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import Header from './components/Header';
 
 function App() {
+  const [notes, setNotes] = useState("");
+
   return (
     <div className='App'>
-      <Header/>
+      <Header setNotes={setNotes} />  {}
       <Routes>
-          {AppRoutes.map((route, index) => {
-              const { element, ...rest } = route;
-              return <Route key={index} {...rest} element={element} />;
-          })}
+        {AppRoutes.map((route, index) => {
+          const { element, ...rest } = route;
+          if (element.type.name === "LectureView") {
+            return <Route key={index} {...rest} element={React.cloneElement(element, { notes, setNotes })} />;
+          }
+          return <Route key={index} {...rest} element={element} />;
+        })}
       </Routes>
     </div>
   );

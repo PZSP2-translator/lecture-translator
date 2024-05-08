@@ -56,7 +56,7 @@ const HomePage = () => {
             <div className="element-homepage">
                 <div className="component-title-homepage">Create a new Lecture</div>
                 <div className="enter-box-homepage">
-                    <h2>Lecuture name:</h2>
+                    <h2>Lecture name:</h2>
                     <input
                         type="text"
                         placeholder="Title"
@@ -72,7 +72,7 @@ const HomePage = () => {
             <div className="element-homepage">
                 <div className="component-title-homepage">Join Lecture by code</div>
                 <div className="enter-box-homepage">
-                    <h2>Lecuture code:</h2>
+                    <h2>Lecture code:</h2>
                     <input
                         type="text"
                         placeholder="Code"

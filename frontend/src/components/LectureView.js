@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import "./LectureView.css"
+import { jsPDF } from 'jspdf'
+import { openFile } from './openFile';
 
 function getSrc(html) {
     var regex = /src="([^"]+)"/;
     return html.match(regex)[1];
 }
+
+
+const LectureView = ({ notes, setNotes }) => {
 
 function getMetaData(code) {
     return fetch('http://localhost:8000/joinCourse', {
@@ -25,7 +30,6 @@ function getMetaData(code) {
         .catch((error) => console.error('Error:', error));
     };
 
-const LectureView = () => {
     let { code } = useParams();
     const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode") || code);
 
@@ -63,6 +67,28 @@ const LectureView = () => {
 
 
     const [transcription, setTranscription] = useState("");
+
+    const saveNotes = () => {
+        const element = document.createElement("a");
+        const file = new Blob([notes], {type: 'text/plain'});
+        element.href = URL.createObjectURL(file);
+        element.download = "myNotes.txt";
+        document.body.appendChild(element);
+        element.click();
+    };
+
+    const handleOpen = () => {
+        openFile((content) => {
+            setNotes(content);
+        });
+    }
+
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        const splitText = doc.splitTextToSize(notes, 180);
+        doc.text(splitText, 10, 10);
+        doc.save("exportedNotes.pdf");
+    };
 
     const handleQuestion = () => {
         console.log(question);
@@ -104,11 +130,11 @@ const LectureView = () => {
 
                 </div>
                 <div className="element-lectureview">
-                    <textarea className='notes' wrap='soft'></textarea>
+                    <textarea className='notes' value={notes} wrap='soft' onChange={(e) => setNotes(e.target.value)}></textarea>
                     <div className='buttons'>
-                        <button >Save</button>
-                        <button >Open</button>
-                        <button >Export</button>
+                        <button onClick={saveNotes}>Save</button>
+                        <button onClick={handleOpen}>Open</button>
+                        <button onClick={exportToPDF}>Export</button>
                     </div>
                     <div className="question-lectureview">
                         <input
