@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import "./LectureView.css"
+import { openFile } from './openFile';
 
 function getSrc(html) {
     var regex = /src="([^"]+)"/;
     return html.match(regex)[1];
 }
 
-const LectureView = () => {
+const LectureView = ({ notes, setNotes }) => {
     const [title, setTitle] = useState("temp");
     const [date, setDate] = useState("01.01.2000");
     const [question, setQuestion] = useState("");
-    const [notes, setNotes] = useState("");
 
     const transcription = ""
 
@@ -22,6 +22,12 @@ const LectureView = () => {
         document.body.appendChild(element);
         element.click();
     };
+
+    const handleOpen = () => {
+        openFile((content) => {
+            setNotes(content);
+        });
+    }
 
     const handleQuestion = () => {
         console.log(question);
@@ -45,7 +51,7 @@ const LectureView = () => {
                     <textarea className='notes' value={notes} wrap='soft' onChange={(e) => setNotes(e.target.value)}></textarea>
                     <div className='buttons'>
                         <button onClick={saveNotes}>Save</button>
-                        <button >Open</button>
+                        <button onClick={handleOpen}>Open</button>
                         <button >Export</button>
                     </div>
                     <div className="question-lectureview">
