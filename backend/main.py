@@ -46,7 +46,7 @@ def callback(indata, frames, time, status):
     if text == None or text == "":
         return
     last_data_buffer = indata[cutting_frame:]
-    text = translate.translate_pl_to_en(text)
+    #text = translate.translate_pl_to_en(text)
     sender.send_text(text)
 
 if __name__ == "__main__":
