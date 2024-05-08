@@ -58,6 +58,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+l = []
 
 # @app.get("/courses")
 # async def root():
@@ -72,7 +73,14 @@ class Transcription(BaseModel):
 
 @app.post("/")
 def main(data: Transcription):
+    l.append(data)
     return data
+
+@app.get("/")
+async def root():
+    if len(l) == 0:
+        return {"text": ""}
+    return l[-1]
 
 
 # Docker

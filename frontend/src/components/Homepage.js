@@ -7,7 +7,7 @@ import { useState } from 'react';
 const HomePage = () => {
     const [title, setTitle] = useState("");
     const [code, setCode] = useState("");
-    
+
         const course = {
             course_id: 0,
             name: title,
@@ -16,7 +16,7 @@ const HomePage = () => {
         };
 
     const handleCreate = () => {
-        fetch('http://localhost:8000/createCourse', {
+        fetch('http://localhost:5000/createCourse', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ const HomePage = () => {
       };
 
     const handleJoin = () => {
-        fetch('http://localhost:8000/joinCourse', {
+        fetch('http://localhost:5000/joinCourse', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',

@@ -5,9 +5,9 @@ services:
     command: python -u main.py
     container_name: PZSP06_api
     ports:
-      - "8000:8000"
+      - "5000:5000"
     expose:
-     - 8000
+     - 5000
     networks: [pzsp06_network]
 
   frontend:
