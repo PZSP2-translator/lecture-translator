@@ -11,6 +11,12 @@ import sender
 import translate
 import numpy as np
 
+
+import os
+ffmpeg_path = r'C:\EITI\sem6\PZSP2\FFMEG\ffmpeg-2024-05-06-git-96449cfeae-full_build\bin'
+os.environ['PATH'] += os.pathsep + ffmpeg_path
+
+
 def choose_cutting_point(indata):
     cutting_frame = 0
     with tempfile.NamedTemporaryFile(suffix='.wav', delete=True) as tmpfile:

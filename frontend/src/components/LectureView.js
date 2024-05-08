@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./LectureView.css"
 
 function getSrc(html) {
@@ -11,14 +11,36 @@ const LectureView = () => {
     const [date, setDate] = useState("01.01.2000");
     const [question, setQuestion] = useState("");
 
-    const transcription = ""
-
+    // const transcription = "TEKTS"
+    const [transcription, setTranscription] = useState("");
     const handleQuestion = () => {
         console.log(question);
     }
 
     const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>'
     const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1"
+
+    useEffect(() => {
+        const fetchData = async()=>{
+            try{
+            const responce = await fetch("http://127.0.0.1:5000/");
+            if (!responce.ok){
+                throw new Error("XD" + responce.statusText);
+            }
+            const data = await responce.json();
+            console.log("Received data:", data);
+            setTranscription(prevTranscription =>prevTranscription  + " " + data.text);
+            }
+            catch (error){
+                console.error("ERROR", error);
+            }
+    };
+
+    // fetchData();
+    const intervalId = setInterval(fetchData, 5000);
+
+    return () => clearInterval(intervalId);
+}, []);
 
     return (
         <div className="component-container-lectureview">
