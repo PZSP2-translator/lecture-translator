@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import "./LectureView.css"
 
 function getSrc(html) {
@@ -6,23 +7,71 @@ function getSrc(html) {
     return html.match(regex)[1];
 }
 
+function getMetaData(code) {
+    return fetch('http://localhost:8000/joinCourse', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "code": code
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            return data;
+        })
+        .catch((error) => console.error('Error:', error));
+    };
+
 const LectureView = () => {
-    const [title, setTitle] = useState("temp");
-    const [date, setDate] = useState("01.01.2000");
+    let { code } = useParams();
+    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode") || code);
+
+    useEffect(() => {
+        sessionStorage.setItem("lastCode", lastCode);
+        getMetaData(lastCode).then(metaData => {
+            if (metaData) {
+                setTitle(metaData.name);
+                setDate(metaData.date);
+            }
+        });
+    }, [lastCode]);
+    
+    const [title, setTitle] = useState("Lecture");
+    const [date, setDate] = useState("");
     const [question, setQuestion] = useState("");
+
+
+    
+    // Use the lastCode variable in your component
+    console.log(lastCode);
+    
+    useEffect(() => {
+
+        getMetaData(code).then(metaData => {
+            if (metaData) {
+                setTitle(metaData.name);
+                setDate(metaData.date);
+            }
+        });
+    }, [code]);
+    
+    const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>'
+    const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1"
 
     const transcription = ""
 
     const handleQuestion = () => {
         console.log(question);
+        alert(`Question sent!\n "${question}"`);
+        setQuestion("");
     }
-
-    const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>'
-    const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1"
-
+    
     return (
         <div className="component-container-lectureview">
-            <div className="component-title-lectureview">{title}{date}</div>
+            <div className="component-title-lectureview">{title} {date} ---- Code: {code}</div>
             <div className='divider-lectureview'>
                 <div className="element-lectureview">
                     <div className="transcription">{transcription}</div>

@@ -38,7 +38,7 @@ const AppRoutes = [
     element: <ChooseLecture />
     },
     {
-    path: '/notes',
+    path: '/notes/:code',
     element: <LectureView />
     },
     {

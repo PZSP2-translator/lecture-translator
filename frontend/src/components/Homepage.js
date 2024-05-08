@@ -2,17 +2,54 @@ import React from 'react';
 import "./Homepage.css";
 import { useState } from 'react';
 
+
+
 const HomePage = () => {
     const [title, setTitle] = useState("");
     const [code, setCode] = useState("");
+    
+        const course = {
+            course_id: 0,
+            name: title,
+            code: 0,
+            date: 0
+        };
 
     const handleCreate = () => {
-        console.log(title);
+        fetch('http://localhost:8000/createCourse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(course),
+        })
+        .then(response => response.json())
+.then(data => {
+    navigator.clipboard.writeText(data)
+    .then(() => alert(`Course code for ${title} is \n ${data} \n /it was copied to your clipboard/`))
+    .catch((error) => console.error('Error:', error));
+    return data;
+})
+.catch((error) => console.error('Error:', error));
       };
 
     const handleJoin = () => {
-        console.log(code);
-      };
+        fetch('http://localhost:8000/joinCourse', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "code": code
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            window.location.href = `/notes/${data.code}`;
+        })
+        .catch((error) => console.error('Error:', error));
+    };
 
     return (
         <div className="divider-homepage">
