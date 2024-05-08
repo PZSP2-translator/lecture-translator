@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import "./LectureView.css"
+import { jsPDF } from 'jspdf'
 import { openFile } from './openFile';
 
 function getSrc(html) {
@@ -29,6 +30,13 @@ const LectureView = ({ notes, setNotes }) => {
         });
     }
 
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        const splitText = doc.splitTextToSize(notes, 180);
+        doc.text(splitText, 10, 10);
+        doc.save("exportedNotes.pdf");
+    };
+
     const handleQuestion = () => {
         console.log(question);
     }
@@ -52,7 +60,7 @@ const LectureView = ({ notes, setNotes }) => {
                     <div className='buttons'>
                         <button onClick={saveNotes}>Save</button>
                         <button onClick={handleOpen}>Open</button>
-                        <button >Export</button>
+                        <button onClick={exportToPDF}>Export</button>
                     </div>
                     <div className="question-lectureview">
                         <input
