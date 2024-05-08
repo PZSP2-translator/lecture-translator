@@ -19,5 +19,10 @@ prowadzone tylko w języku polskim.
 
 needed to have npm, node installed
 
-npm install
-docker-compose up --build
+następnie z poziomu folderu translator/frontend:
+
+```npm install``` (przy pierwszym uruchomieniu)
+```npm start```
+
+następnie z poziomu folderu translator/:
+```docker-compose up --build```
