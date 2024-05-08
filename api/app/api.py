@@ -16,12 +16,13 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8081"],
+    allow_origins=["http://localhost:8081", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
+l = []
 
 # @app.get("/courses")
 # async def root():
@@ -34,7 +35,14 @@ class Transcription(BaseModel):
 
 @app.post("/")
 def main(data: Transcription):
+    l.append(data)
     return data
+
+@app.get("/")
+async def root():
+    if len(l) == 0:
+        return None
+    return l[-1]
 
 
 # Docker
