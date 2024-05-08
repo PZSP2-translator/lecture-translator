@@ -11,11 +11,6 @@ import sender
 import translate
 import numpy as np
 
-
-import os
-ffmpeg_path = r'C:\EITI\sem6\PZSP2\FFMEG\ffmpeg-2024-05-06-git-96449cfeae-full_build\bin'
-os.environ['PATH'] += os.pathsep + ffmpeg_path
-
 def choose_cutting_point(indata):
     cutting_frame = 0
     with tempfile.NamedTemporaryFile(suffix='.wav', delete=True) as tmpfile:
@@ -51,7 +46,7 @@ def callback(indata, frames, time, status):
     if text == None or text == "":
         return
     last_data_buffer = indata[cutting_frame:]
-    #text = translate.translate_pl_to_en(text)
+    text = translate.translate_pl_to_en(text)
     sender.send_text(text)
 
 if __name__ == "__main__":
