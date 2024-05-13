@@ -1,9 +1,16 @@
+DROP TABLE TRANSCRIPTIONS;
+DROP TABLE PARTICIPANTS;
+DROP TABLE USERS;
+DROP TABLE LECTURES;
+
+
 CREATE TABLE lectures (
     lecture_id   INTEGER NOT NULL,
     title        VARCHAR2(30 CHAR) NOT NULL,
     lecture_date DATE NOT NULL,
     lecturer_code   VARCHAR2(6 CHAR) NOT NULL UNIQUE,
-    student_code    VARCHAR2(6 CHAR) NOT NULL UNIQUE
+    student_code    VARCHAR2(6 CHAR) NOT NULL UNIQUE,
+    presentation_link VARCHAR2(200 CHAR)
 );
 
 ALTER TABLE lectures ADD CONSTRAINT lecture_pk PRIMARY KEY ( lecture_id );
