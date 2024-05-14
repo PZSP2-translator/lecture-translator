@@ -1,34 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import "./LectureView.css"
-import { jsPDF } from 'jspdf'
+import "./LectureView.css";
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import { openFile } from './openFile';
+import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill';
 
 function getSrc(html) {
     var regex = /src="([^"]+)"/;
     return html.match(regex)[1];
 }
 
-
 const LectureView = ({ notes, setNotes }) => {
+    const quillRef = useRef(null);
+    const [localNotes, setLocalNotes] = useState(notes);
 
-function getMetaData(code) {
-    return fetch('http://localhost:8000/joinCourse', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "code": code
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            return data;
-        })
-        .catch((error) => console.error('Error:', error));
+    useEffect(() => {
+        if (quillRef.current) {
+            const quill = quillRef.current.getEditor();
+            quill.on('text-change', () => {
+                setLocalNotes(quill.root.innerHTML);
+                setNotes(quill.root.innerHTML);
+            });
+
+            if (notes && notes !== localNotes) {
+                quill.clipboard.dangerouslyPasteHTML(notes);
+            }
+        }
+    }, [notes, localNotes, setNotes]);
+
+    useEffect(() => {
+        const quill = quillRef.current.getEditor();
+        const toolbar = quill.getModule('toolbar');
+        toolbar.addHandler('image', () => {
+            selectLocalImage(quill);
+        });
+    }, []);
+
+    const selectLocalImage = (quill) => {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = () => {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const range = quill.getSelection();
+                    quill.insertEmbed(range.index, 'image', e.target.result);
+                    quill.setSelection(range.index + 1);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
     };
+
+    function getMetaData(code) {
+        return fetch('http://localhost:8000/joinCourse', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "code": code
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                return data;
+            })
+            .catch((error) => console.error('Error:', error));
+    }
 
     let { code } = useParams();
     const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode") || code);
@@ -47,13 +93,9 @@ function getMetaData(code) {
     const [date, setDate] = useState("");
     const [question, setQuestion] = useState("");
 
-
-
-    // Use the lastCode variable in your component
     console.log(lastCode);
 
     useEffect(() => {
-
         getMetaData(code).then(metaData => {
             if (metaData) {
                 setTitle(metaData.name);
@@ -62,17 +104,16 @@ function getMetaData(code) {
         });
     }, [code]);
 
-    const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>'
-    const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1"
-
+    const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>';
+    const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1";
 
     const [transcription, setTranscription] = useState("");
 
     const saveNotes = () => {
         const element = document.createElement("a");
-        const file = new Blob([notes], {type: 'text/plain'});
+        const file = new Blob([localNotes], { type: 'text/html' });
         element.href = URL.createObjectURL(file);
-        element.download = "myNotes.txt";
+        element.download = "myNotes.html";
         document.body.appendChild(element);
         element.click();
     };
@@ -80,43 +121,54 @@ function getMetaData(code) {
     const handleOpen = () => {
         openFile((content) => {
             setNotes(content);
+            setLocalNotes(content);
+            const quill = quillRef.current.getEditor();
+            quill.clipboard.dangerouslyPasteHTML(content);
+            quill.setSelection(quill.getLength(), 0);
         });
-    }
+    };
 
-    const exportToPDF = () => {
-        const doc = new jsPDF();
-        const splitText = doc.splitTextToSize(notes, 180);
-        doc.text(splitText, 10, 10);
-        doc.save("exportedNotes.pdf");
+    const exportToPDF = async () => {
+
     };
 
     const handleQuestion = () => {
         console.log(question);
         alert(`Question sent!\n "${question}"`);
         setQuestion("");
-    }
-
-    useEffect(() => {
-        const fetchData = async()=>{
-            try{
-            const responce = await fetch("http://127.0.0.1:5000/");
-            if (!responce.ok){
-                throw new Error("XD" + responce.statusText);
-            }
-            const data = await responce.json();
-            console.log("Received data:", data);
-            setTranscription(prevTranscription =>prevTranscription  + " " + data.text);
-            }
-            catch (error){
-                console.error("ERROR", error);
-            }
     };
 
-    // fetchData();
-    const intervalId = setInterval(fetchData, 10000);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/");
+                if (!response.ok) {
+                    throw new Error("XD" + response.statusText);
+                }
+                const data = await response.json();
+                console.log("Received data:", data);
+                setTranscription(prevTranscription => prevTranscription + " " + data.text);
+            } catch (error) {
+                console.error("ERROR", error);
+            }
+        };
 
-    return () => clearInterval(intervalId);
-}, []);
+        // fetchData();
+        const intervalId = setInterval(fetchData, 10000);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
+    const quillModules = {
+        toolbar: [
+            [{ 'header': [1, 2, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['link', 'image'],
+            [{ 'align': [] }],
+            ['clean']
+        ]
+    };
 
     return (
         <div className="component-container-lectureview">
@@ -125,12 +177,11 @@ function getMetaData(code) {
                 <div className="element-lectureview">
                     <div className="transcription">{transcription}</div>
                     <iframe className="presentation"
-                        src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1" width="730px" height="270px">
+                        src={link} width="730px" height="270px">
                     </iframe>
-
                 </div>
                 <div className="element-lectureview">
-                    <textarea className='notes' value={notes} wrap='soft' onChange={(e) => setNotes(e.target.value)}></textarea>
+                    <ReactQuill ref={quillRef} value={localNotes} onChange={setLocalNotes} theme="snow" modules={quillModules} />
                     <div className='buttons'>
                         <button onClick={saveNotes}>Save</button>
                         <button onClick={handleOpen}>Open</button>
@@ -148,23 +199,8 @@ function getMetaData(code) {
                     </div>
                 </div>
             </div>
-    </div>
+        </div>
     );
 };
 
 export default LectureView;
-
-
-// Prezentacje trzeba ogarnąć żeby poprawnie link przyjmować a nie całego html
-
-// nie wiem czy to bezpieczne
-// Instrukcja:
-// Osadź
-// skopiuj komponent iframe
-// wklej
-// np. <iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>
-// bierzemy stąd tylko src
-
-// Trzeba przekzywać link do iframe tylko póki co jak jest przekazywane nie przez wartość to rozdzielczość spada
-
-// Dodać możliwość nie wyświetlania/chowania prezentacji
