@@ -29,7 +29,7 @@ const Header = ({ setNotes }) => {
           <div className="frame">
             <div className="link" onClick={handleOpen}>Open</div>
           </div>
-          <Link to="/notes" className='no-underscore'>
+          <Link to="/notes/-1" className='no-underscore'>
             <div className="frame">
               <div className="link">Notes</div>
             </div>

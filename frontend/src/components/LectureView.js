@@ -4,6 +4,8 @@ import "./LectureView.css"
 import { jsPDF } from 'jspdf'
 import { openFile } from './openFile';
 
+
+
 function getSrc(html) {
     var regex = /src="([^"]+)"/;
     return html.match(regex)[1];
@@ -11,10 +13,11 @@ function getSrc(html) {
 
 let port = 8000;
 
-const LectureView = ({ notes, setNotes }) => {
 
-function getMetaData(code) {
-    return fetch(`http://localhost:${port}/joinCourse`, {
+const LectureView = ({ notes, setNotes }) => {
+    
+    function getMetaData(code) {
+        return fetch(`http://localhost:${port}/joinCourse`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -30,9 +33,17 @@ function getMetaData(code) {
         })
         .catch((error) => console.error('Error:', error));
     };
+    
+    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
+    const [title, setTitle] = useState("Lecture");
+    const [date, setDate] = useState("");
+    const [question, setQuestion] = useState("");
+    const [transcription, setTranscription] = useState("");
 
     let { code } = useParams();
-    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode") || code);
+    if (code == "-1") {
+        code = lastCode;
+    }    
 
     useEffect(() => {
         sessionStorage.setItem("lastCode", lastCode);
@@ -40,34 +51,14 @@ function getMetaData(code) {
             if (metaData) {
                 setTitle(metaData.name);
                 setDate(metaData.date);
-            }
-        });
-    }, [lastCode]);
-
-    const [title, setTitle] = useState("Lecture");
-    const [date, setDate] = useState("");
-    const [question, setQuestion] = useState("");
-
-
-
-    // Use the lastCode variable in your component
-    console.log(lastCode);
-
-    useEffect(() => {
-
-        getMetaData(code).then(metaData => {
-            if (metaData) {
-                setTitle(metaData.name);
-                setDate(metaData.date);
-            }
-        });
-    }, [code]);
+            }    
+        });    
+    }, [lastCode]);        
 
     const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>'
     const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1"
 
 
-    const [transcription, setTranscription] = useState("");
 
     const saveNotes = () => {
         const element = document.createElement("a");
