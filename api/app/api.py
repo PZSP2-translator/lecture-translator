@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-# from .db import get_courses
+from .db import login
 from dataclasses import dataclass
 from pydantic import BaseModel
 import random
@@ -53,7 +53,7 @@ async def get_courses(request: JoinCourseRequest):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8081","http://localhost:3000"],
+    allow_origins=["http://localhost:8081", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
@@ -87,3 +87,18 @@ async def root():
 # Docker
 # pip install fastapi==0.78.0 uvicorn==0.17.6
 # uvicorn main:app --reload
+
+
+class LoginRequest(BaseModel):
+    mail: str
+    pass_hash: str
+
+
+@app.post("/login")
+def authenticate_user(login_request: LoginRequest):
+    user_id = login(login_request.mail, login_request.pass_hash)
+    if user_id != 0:
+        return {"user_id": user_id}
+    else:
+        # Obsłużyć po stronie przeglądarki
+        raise HTTPException(status_code=401, detail="Invalid mail or password")
