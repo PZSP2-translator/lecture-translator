@@ -129,7 +129,29 @@ const LectureView = ({ notes, setNotes }) => {
     };
 
     const exportToPDF = async () => {
+        const pdf = new jsPDF();
+        const content = quillRef.current.getEditor().root;
+        const pageHeight = pdf.internal.pageSize.height;
+        const canvas = await html2canvas(content);
 
+        const imgData = canvas.toDataURL('image/png');
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgHeight = (imgProps.height * 190) / imgProps.width;
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 10, position, 190, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 10, position, 190, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        pdf.save('exportedNotes.pdf');
     };
 
     const handleQuestion = () => {
