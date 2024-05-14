@@ -9,11 +9,12 @@ function getSrc(html) {
     return html.match(regex)[1];
 }
 
+let port = 8000;
 
 const LectureView = ({ notes, setNotes }) => {
 
 function getMetaData(code) {
-    return fetch('http://localhost:8000/joinCourse', {
+    return fetch(`http://localhost:${port}/joinCourse`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ function getMetaData(code) {
     useEffect(() => {
         const fetchData = async()=>{
             try{
-            const responce = await fetch("http://127.0.0.1:5000/");
+            const responce = await fetch(`http://localhost:${port}/`);
             if (!responce.ok){
                 throw new Error("XD" + responce.statusText);
             }
