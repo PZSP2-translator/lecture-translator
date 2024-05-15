@@ -3,10 +3,11 @@ import './Header.css';
 import logoImage from './pzsp2icon.png';
 import { Link, useNavigate  } from 'react-router-dom';
 import { openFile } from './openFile';
+import {useUser} from './UserContext';
 
 const Header = ({ setNotes }) => {
   const navigate = useNavigate();
-  const user = false;
+  const { user, logout } = useUser();
   const handleOpen = () => {
     openFile((content) => {
       navigate("/notes");
@@ -15,6 +16,7 @@ const Header = ({ setNotes }) => {
   }
 
   const handleLogout = () => {
+    logout()
     navigate("/")
   };
 
@@ -39,27 +41,35 @@ const Header = ({ setNotes }) => {
               <div className="link">Questions</div>
             </div>
           </Link>
-          <Link to="/history" className='no-underscore'>
-            <div className="frame">
-              <div className="link">History</div>
-            </div>
-          </Link>
+          {user && (
+            <>
+              <Link to="/history" className='no-underscore'>
+              <div className="frame">
+                <div className="link">History</div>
+              </div>
+            </Link>
+            </>
+          )
+          }
           <Link to="/codes" className='no-underscore'>
             <div className="frame">
               <div className="link">Codes</div>
             </div>
           </Link>
-          {user && (
+          {!user && (
+            <>
+              <Link to="/login" className='no-underscore'>
+              <div className="frame">
+                <div className="link">Login</div>
+              </div>
+              </Link>
+            </>
+          )}
+            {user && (
             <>
               <Link to="/passwd" className='no-underscore'>
               <div className="frame">
                 <div className="link">Reset Pass</div>
-              </div>
-              </Link>
-
-              <Link to="/login" className='no-underscore'>
-              <div className="frame">
-                <div className="link">Login</div>
               </div>
               </Link>
               <div className="frame">
