@@ -203,7 +203,9 @@ const LectureView = ({ notes, setNotes }) => {
                     </iframe>
                 </div>
                 <div className="element-lectureview">
-                    <ReactQuill ref={quillRef} value={localNotes} onChange={setLocalNotes} theme="snow" modules={quillModules} />
+                    <div className="notes">
+                        <ReactQuill className="ql-container" ref={quillRef} value={localNotes} onChange={setLocalNotes} theme="snow" modules={quillModules} />
+                    </div>
                     <div className='buttons'>
                         <button onClick={saveNotes}>Save</button>
                         <button onClick={handleOpen}>Open</button>
