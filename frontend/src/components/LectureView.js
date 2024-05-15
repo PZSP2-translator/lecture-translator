@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import "./LectureView.css"
 import { jsPDF } from 'jspdf'
 import { openFile } from './openFile';
+import { port, craftTitle, getMetaData} from '../Resources';
 
 
 
@@ -10,54 +11,51 @@ function getSrc(html) {
     var regex = /src="([^"]+)"/;
     return html.match(regex)[1];
 }
-
-let port = 8000;
-
-
 const LectureView = ({ notes, setNotes }) => {
     
-    function getMetaData(code) {
-        return fetch(`http://localhost:${port}/joinCourse`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "code": code
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            return data;
-        })
-        .catch((error) => console.error('Error:', error));
-    };
     
     const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
     const [title, setTitle] = useState("Lecture");
-    const [date, setDate] = useState("");
     const [question, setQuestion] = useState("");
     const [transcription, setTranscription] = useState("");
-
-    let { code } = useParams();
-    if (code == "-1") {
-        code = lastCode;
-    }    
-
-    useEffect(() => {
-        sessionStorage.setItem("lastCode", lastCode);
-        getMetaData(lastCode).then(metaData => {
-            if (metaData) {
-                setTitle(metaData.name);
-                setDate(metaData.date);
-            }    
-        });    
-    }, [lastCode]);        
 
     const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>'
     const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1"
 
+    
+    let { code } = useParams();
+    if (code === "-1") {
+        code = lastCode;
+    }    
+
+    useEffect(() => {
+        sessionStorage.setItem("lastCode", code);
+
+        (async () => {
+            const result = await craftTitle(code);
+            setTitle(result);
+        })();
+
+        const fetchData = async()=>{
+            try{
+            const responce = await fetch(`http://localhost:${port}/`);
+            if (!responce.ok){
+                throw new Error("XD" + responce.statusText);
+            }
+            const data = await responce.json();
+            console.log("Received data:", data);
+            setTranscription(prevTranscription =>prevTranscription  + " " + data.text);
+            }
+            catch (error){
+                console.error("ERROR", error);
+            }
+    };
+
+    // fetchData();
+    const intervalId = setInterval(fetchData, 10000);
+
+    return () => clearInterval(intervalId);
+}, []);
 
 
     const saveNotes = () => {
@@ -88,31 +86,11 @@ const LectureView = ({ notes, setNotes }) => {
         setQuestion("");
     }
 
-    useEffect(() => {
-        const fetchData = async()=>{
-            try{
-            const responce = await fetch(`http://localhost:${port}/`);
-            if (!responce.ok){
-                throw new Error("XD" + responce.statusText);
-            }
-            const data = await responce.json();
-            console.log("Received data:", data);
-            setTranscription(prevTranscription =>prevTranscription  + " " + data.text);
-            }
-            catch (error){
-                console.error("ERROR", error);
-            }
-    };
 
-    // fetchData();
-    const intervalId = setInterval(fetchData, 10000);
-
-    return () => clearInterval(intervalId);
-}, []);
 
     return (
         <div className="component-container-lectureview">
-            <div className="component-title-lectureview">{title} {date} ---- Code: {code}</div>
+            <div className="component-title-lectureview">{title}</div>
             <div className='divider-lectureview'>
                 <div className="element-lectureview">
                     <div className="transcription">{transcription}</div>

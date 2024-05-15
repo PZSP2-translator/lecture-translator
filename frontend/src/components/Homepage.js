@@ -1,8 +1,7 @@
 import React from 'react';
 import "./Homepage.css";
 import { useState } from 'react';
-
-let port = 8000;
+import { port, craftTitle, getMetaData } from '../Resources';
 
 const HomePage = () => {
     const [title, setTitle] = useState("");

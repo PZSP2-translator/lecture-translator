@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./Question.css";
+import { port, craftTitle, getMetaData} from '../Resources';
+
 
 const Question = () => {
     const [selected, setSelected] = useState(null);
+    const [title, setTitle] = useState("Lecture");
+    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
     const [link, setLink] = useState("");
     const questions = [
         'Question 1',
@@ -19,10 +23,17 @@ const Question = () => {
         console.log(link)
     };
 
+    useEffect(() => {
+        (async () => {
+            const result = await craftTitle(lastCode);
+            setTitle(result);
+        })();
+    }, [lastCode]);
+
 
     return (
         <div className="component-container-question">
-            <div className="component-title-question">Title, course_code, lecture_code, date</div>
+            <div className="component-title-question">{title}</div>
             <div className='question-list'>
                 {questions.map((item, index) => (
                 <div key={index} className="question-item">
