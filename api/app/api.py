@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 import random
 import datetime
-
+import json
 
 @dataclass
 class Course(BaseModel):
@@ -83,6 +83,28 @@ async def root():
         return {"text": ""}
     return l[-1]
 
+class AskQuestionRequest(BaseModel):
+    question: str
+
+questions = set()
+
+@app.post("/questions") # TODO make it so it works with multiple lectures at once
+async def add_question(request: AskQuestionRequest):
+    questions.add(request.question)
+    print(questions)
+    questions.remove("ajaj")
+    print(questions)
+
+@app.delete("/question")
+async def del_question(request: AskQuestionRequest):
+    questions.remove(request.question)
+
+@app.get("/questions") # TODO implement this as Server Sent Event (SSE)
+async def get_question():
+    questions_list = list(questions)
+    questions_json = json.dumps(questions_list)
+    print(questions_json)
+    return questions_list
 
 # Docker
 # pip install fastapi==0.78.0 uvicorn==0.17.6

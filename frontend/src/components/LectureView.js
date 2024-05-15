@@ -12,8 +12,8 @@ function getSrc(html) {
     return html.match(regex)[1];
 }
 const LectureView = ({ notes, setNotes }) => {
-    
-    
+
+
     const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
     const [title, setTitle] = useState("Lecture");
     const [question, setQuestion] = useState("");
@@ -22,11 +22,11 @@ const LectureView = ({ notes, setNotes }) => {
     const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>'
     const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1"
 
-    
+
     let { code } = useParams();
     if (code === "-1") {
         code = lastCode;
-    }    
+    }
 
     useEffect(() => {
         sessionStorage.setItem("lastCode", code);
@@ -81,8 +81,22 @@ const LectureView = ({ notes, setNotes }) => {
     };
 
     const handleQuestion = () => {
-        console.log(question);
-        alert(`Question sent!\n "${question}"`);
+        console.log("MY CHANGES" + question);
+        fetch(`http://localhost:${port}/questions`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "question": question
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+        .catch((error) => console.error('Error:', error));
+        //alert(`Question sent!\n "${question}"`);
         setQuestion("");
     }
 
