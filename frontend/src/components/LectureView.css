@@ -78,7 +78,22 @@
     white-space: pre-wrap;
 }
 
+.ql-container {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
 
+.ql-editor {
+  flex: 1;
+  max-height: 100%;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  box-sizing: border-box;
+}
 
 .buttons {
     display: flex;
