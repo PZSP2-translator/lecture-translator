@@ -1,8 +1,7 @@
 import React from 'react';
 import "./Homepage.css";
 import { useState } from 'react';
-
-
+import { port, craftTitle, getMetaData } from '../Resources';
 
 const HomePage = () => {
     const [title, setTitle] = useState("");
@@ -16,7 +15,7 @@ const HomePage = () => {
         };
 
     const handleCreate = () => {
-        fetch('http://localhost:5000/createCourse', {
+        fetch(`http://localhost:${port}/createCourse`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -34,7 +33,7 @@ const HomePage = () => {
       };
 
     const handleJoin = () => {
-        fetch('http://localhost:5000/joinCourse', {
+        fetch(`http://localhost:${port}/joinCourse`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',

@@ -1,12 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-# from .db import get_courses
+from .db import login
 from dataclasses import dataclass
 from pydantic import BaseModel
 import random
 import datetime
-
+import json
 
 @dataclass
 class Course(BaseModel):
@@ -53,7 +53,7 @@ async def get_courses(request: JoinCourseRequest):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8081","http://localhost:3000"],
+    allow_origins=["http://localhost:8081", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
@@ -83,7 +83,44 @@ async def root():
         return {"text": ""}
     return l[-1]
 
+class AskQuestionRequest(BaseModel):
+    question: str
+
+questions = set()
+
+@app.post("/questions") # TODO make it so it works with multiple lectures at once
+async def add_question(request: AskQuestionRequest):
+    questions.add(request.question)
+    print(questions)
+    questions.remove("ajaj")
+    print(questions)
+
+@app.delete("/question")
+async def del_question(request: AskQuestionRequest):
+    questions.remove(request.question)
+
+@app.get("/questions") # TODO implement this as Server Sent Event (SSE)
+async def get_question():
+    questions_list = list(questions)
+    questions_json = json.dumps(questions_list)
+    print(questions_json)
+    return questions_list
 
 # Docker
 # pip install fastapi==0.78.0 uvicorn==0.17.6
 # uvicorn main:app --reload
+
+
+class LoginRequest(BaseModel):
+    mail: str
+    pass_hash: str
+
+
+@app.post("/login")
+def authenticate_user(login_request: LoginRequest):
+    user_id = login(login_request.mail, login_request.pass_hash)
+    if user_id != 0:
+        return {"user_id": user_id}
+    else:
+        # Obsłużyć po stronie przeglądarki
+        raise HTTPException(status_code=401, detail="Invalid mail or password")

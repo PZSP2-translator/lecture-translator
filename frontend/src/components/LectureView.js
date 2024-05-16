@@ -6,6 +6,9 @@ import html2canvas from 'html2canvas';
 import { openFile } from './openFile';
 import 'react-quill/dist/quill.snow.css';
 import ReactQuill from 'react-quill';
+import { port, craftTitle, getMetaData} from '../Resources';
+
+
 
 function getSrc(html) {
     var regex = /src="([^"]+)"/;
@@ -16,98 +19,53 @@ const LectureView = ({ notes, setNotes }) => {
     const quillRef = useRef(null);
     const [localNotes, setLocalNotes] = useState(notes);
 
-    useEffect(() => {
-        if (quillRef.current) {
-            const quill = quillRef.current.getEditor();
-            quill.on('text-change', () => {
-                setLocalNotes(quill.root.innerHTML);
-                setNotes(quill.root.innerHTML);
-            });
 
-            if (notes && notes !== localNotes) {
-                quill.clipboard.dangerouslyPasteHTML(notes);
-            }
-        }
-    }, [notes, localNotes, setNotes]);
-
-    useEffect(() => {
-        const quill = quillRef.current.getEditor();
-        const toolbar = quill.getModule('toolbar');
-        toolbar.addHandler('image', () => {
-            selectLocalImage(quill);
-        });
-    }, []);
-
-    const selectLocalImage = (quill) => {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
-        input.click();
-
-        input.onchange = () => {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const range = quill.getSelection();
-                    quill.insertEmbed(range.index, 'image', e.target.result);
-                    quill.setSelection(range.index + 1);
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-    };
-
-    function getMetaData(code) {
-        return fetch('http://localhost:8000/joinCourse', {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    "code": code
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                return data;
-            })
-            .catch((error) => console.error('Error:', error));
-    }
-
-    let { code } = useParams();
-    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode") || code);
-
-    useEffect(() => {
-        sessionStorage.setItem("lastCode", lastCode);
-        getMetaData(lastCode).then(metaData => {
-            if (metaData) {
-                setTitle(metaData.name);
-                setDate(metaData.date);
-            }
-        });
-    }, [lastCode]);
-
+    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
     const [title, setTitle] = useState("Lecture");
-    const [date, setDate] = useState("");
     const [question, setQuestion] = useState("");
+    const [transcription, setTranscription] = useState("");
 
     console.log(lastCode);
 
-    useEffect(() => {
-        getMetaData(code).then(metaData => {
-            if (metaData) {
-                setTitle(metaData.name);
-                setDate(metaData.date);
-            }
-        });
-    }, [code]);
+
 
     const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>';
     const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1";
 
-    const [transcription, setTranscription] = useState("");
+    let { code } = useParams();
+    if (code === "-1") {
+        code = lastCode;
+    }
+
+    useEffect(() => {
+        sessionStorage.setItem("lastCode", code);
+
+        (async () => {
+            const result = await craftTitle(code);
+            setTitle(result);
+        })();
+
+        const fetchData = async()=>{
+            try{
+            const responce = await fetch(`http://localhost:${port}/`);
+            if (!responce.ok){
+                throw new Error("XD" + responce.statusText);
+            }
+            const data = await responce.json();
+            console.log("Received data:", data);
+            setTranscription(prevTranscription =>prevTranscription  + " " + data.text);
+            }
+            catch (error){
+                console.error("ERROR", error);
+            }
+    };
+
+    // fetchData();
+    const intervalId = setInterval(fetchData, 10000);
+
+    return () => clearInterval(intervalId);
+}, []);
+
 
     const saveNotes = () => {
         const element = document.createElement("a");
@@ -155,7 +113,21 @@ const LectureView = ({ notes, setNotes }) => {
     };
 
     const handleQuestion = () => {
-        console.log(question);
+        console.log("MY CHANGES" + question);
+        fetch(`http://localhost:${port}/questions`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "question": question
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+        .catch((error) => console.error('Error:', error));
         alert(`Question sent!\n "${question}"`);
         setQuestion("");
     };
@@ -194,7 +166,7 @@ const LectureView = ({ notes, setNotes }) => {
 
     return (
         <div className="component-container-lectureview">
-            <div className="component-title-lectureview">{title} {date} ---- Code: {code}</div>
+            <div className="component-title-lectureview">{title}</div>
             <div className='divider-lectureview'>
                 <div className="element-lectureview">
                     <div className="transcription">{transcription}</div>
