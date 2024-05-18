@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db import login, create_user, change_password
+from .db import login, create_user, change_password, \
+    add_presenation, get_transcription, add_transcription, \
+    join_lecture, create_lecture, get_lectures
 from dataclasses import dataclass
 from pydantic import BaseModel
 import random
@@ -14,6 +16,7 @@ class Course(BaseModel):
     name: str
     code: int
     date: datetime.datetime
+
 
 class JoinCourseRequest(BaseModel):
     code: str
@@ -93,7 +96,7 @@ class LoginRequest(BaseModel):
 
 
 @app.post("/login")
-def authenticate_user(login_request: LoginRequest):
+def authenticate_user_req(login_request: LoginRequest):
     user_id = login(login_request.mail, login_request.pass_hash)
     if user_id != 0:
         return {"user_id": user_id}
@@ -108,7 +111,7 @@ class RegisterRequest(LoginRequest):
 
 
 @app.post("/register")
-def register_user(register_request: RegisterRequest):
+def register_user_req(register_request: RegisterRequest):
     is_succesful = create_user(register_request.first_name,
                                register_request.last_name,
                                register_request.mail,
@@ -123,6 +126,46 @@ class ChangePasswordRequest(BaseModel):
 
 
 @app.post("/change_pass")
-def change_pass(password_request: ChangePasswordRequest):
+def change_pass_req(password_request: ChangePasswordRequest):
     change_password(password_request.user_id,
                     password_request.password)
+
+
+class JoinLectureRequest(BaseModel):
+    user_id: int = None
+    lecture_code: str
+    user_type: str
+
+
+# dla użytkownika zalogowanego, tylko dodaje do listy uczestników
+@app.post("/join_lecture")
+def join_lecture_req(join_lecture_request: JoinLectureRequest):
+    is_succesful = join_lecture(join_lecture_request.lecture_code,
+                                join_lecture_request.user_id,
+                                join_lecture_request.user_type)
+    if is_succesful == 1:
+        raise HTTPException(status_code=401, detail="User already joined the course.")
+    elif is_succesful == -1:
+        raise HTTPException(status_code=401, detail="Lecture with given code doesn't exist.")
+
+
+class CreateLectureRequest(BaseModel):
+    title: str
+
+
+# to ma zwracać kod wykładowcy i studenta chyba?
+@app.post("/create_lecture")
+def create_lecture_req(create_lecture_request: CreateLectureRequest):
+    lecture_id = create_lecture(create_lecture_request.title)
+    return {"lecture_id": lecture_id}
+
+
+class PresentationRequest(BaseModel):
+    lecture_id: int
+    link: str
+
+
+@app.post("/presentation")
+def add_presentation_req(presentation_request: PresentationRequest):
+    add_presenation(presentation_request.lecture_id,
+                    presentation_request.link)
