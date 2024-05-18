@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db import login
+from .db import login, create_user, change_password
 from dataclasses import dataclass
 from pydantic import BaseModel
 import random
@@ -77,16 +77,14 @@ def main(data: Transcription):
     l.append(data)
     return data
 
+
 @app.get("/")
 async def root():
     if len(l) == 0:
         return {"text": ""}
     return l[-1]
 
-
-# Docker
-# pip install fastapi==0.78.0 uvicorn==0.17.6
-# uvicorn main:app --reload
+###############################################
 
 
 class LoginRequest(BaseModel):
@@ -102,3 +100,29 @@ def authenticate_user(login_request: LoginRequest):
     else:
         # Obsłużyć po stronie przeglądarki
         raise HTTPException(status_code=401, detail="Invalid mail or password")
+
+
+class RegisterRequest(LoginRequest):
+    first_name: str
+    last_name: str
+
+
+@app.post("/register")
+def register_user(register_request: RegisterRequest):
+    is_succesful = create_user(register_request.first_name,
+                               register_request.last_name,
+                               register_request.mail,
+                               register_request.pass_hash)
+    if is_succesful == 1:
+        raise HTTPException(status_code=401, detail="Account with that mail already exist.")
+
+
+class ChangePasswordRequest(BaseModel):
+    user_id: int
+    password: str
+
+
+@app.post("/change_pass")
+def change_pass(password_request: ChangePasswordRequest):
+    change_password(password_request.user_id,
+                    password_request.password)

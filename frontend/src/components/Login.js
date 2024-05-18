@@ -31,7 +31,7 @@ function Login() {
     }
 
     const data = await response.json();
-    login({ username, id: data });
+    login({ username, id: data.user_id });
 
     } catch (error) {
     console.error("Error during logging in:", error);
