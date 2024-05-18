@@ -6,6 +6,7 @@ import { useUser } from "./UserContext";
 
 
 function Login() {
+  var bcrypt = require('bcryptjs');
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +24,7 @@ function Login() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ mail: username, pass_hash: password })
+      body: JSON.stringify({ mail: username, pass_hash: bcrypt.hashSync(password, "$2a$04$AWG3GZ5xC83uLrcnbp6whu") })
     });
 
     if (!response.ok) {

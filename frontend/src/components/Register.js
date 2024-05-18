@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 function Register() {
+  var bcrypt = require('bcryptjs');
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [username, setUsername] = useState("");
@@ -19,7 +20,7 @@ function Register() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ first_name: firstname, last_name: lastname, mail: username, pass_hash: password })
+        body: JSON.stringify({ first_name: firstname, last_name: lastname, mail: username, pass_hash: bcrypt.hashSync(password, "$2a$04$AWG3GZ5xC83uLrcnbp6whu") })
       });
 
       if (!response.ok) {

@@ -6,6 +6,7 @@ import { useUser } from "./UserContext";
 
 
 function ChangePassword() {
+  var bcrypt = require('bcryptjs');
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const { user } = useUser();
@@ -22,7 +23,7 @@ function ChangePassword() {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ user_id: user.id, password: password})
+          body: JSON.stringify({ user_id: user.id, password: bcrypt.hashSync(password, "$2a$04$AWG3GZ5xC83uLrcnbp6whu")})
         });
 
         if (!response.ok) {
