@@ -87,30 +87,61 @@ const LectureView = ({ notes, setNotes }) => {
     };
 
     const exportToPDF = async () => {
-        const pdf = new jsPDF();
-        const content = quillRef.current.getEditor().root;
-        const pageHeight = pdf.internal.pageSize.height;
-        const canvas = await html2canvas(content);
-
-        const imgData = canvas.toDataURL('image/png');
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgHeight = (imgProps.height * 190) / imgProps.width;
-
+        const editor = quillRef.current.getEditor().root;
+        
+        // Temporarily expand the editor to ensure all content is captured
+        editor.style.height = 'auto';
+        editor.style.overflow = 'visible';
+        
+        // Wait for styles to take effect
+        await new Promise(resolve => setTimeout(resolve, 100));
+      
+        // Calculate full height of the content
+        const fullHeight = editor.scrollHeight;
+        const fullWidth = editor.scrollWidth;
+      
+        // Use html2canvas to snapshot the full content
+        const canvas = await html2canvas(editor, {
+          scale: 2,
+          logging: true,
+          useCORS: true,
+          scrollX: 0,
+          scrollY: 0,
+          width: fullWidth,
+          height: fullHeight
+        });
+      
+        // Restore editor styles if necessary
+        editor.style.height = '';
+        editor.style.overflow = '';
+      
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        const pdf = new jsPDF({
+          orientation: 'p',
+          unit: 'mm',
+          format: 'a4'
+        });
+      
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
         let heightLeft = imgHeight;
         let position = 0;
-
-        pdf.addImage(imgData, 'PNG', 10, position, 190, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 10, position, 190, imgHeight);
-            heightLeft -= pageHeight;
+      
+        // Add the initial image to PDF
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= 297; // A4 height in mm
+      
+        // Handle content that spans multiple pages
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+          heightLeft -= 297;
         }
-
+      
         pdf.save('exportedNotes.pdf');
-    };
+      };      
 
     const handleQuestion = () => {
         console.log("MY CHANGES" + question);
