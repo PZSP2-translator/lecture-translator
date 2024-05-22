@@ -89,18 +89,14 @@ const LectureView = ({ notes, setNotes }) => {
     const exportToPDF = async () => {
         const editor = quillRef.current.getEditor().root;
         
-        // Temporarily expand the editor to ensure all content is captured
         editor.style.height = 'auto';
         editor.style.overflow = 'visible';
         
-        // Wait for styles to take effect
         await new Promise(resolve => setTimeout(resolve, 100));
       
-        // Calculate full height of the content
         const fullHeight = editor.scrollHeight;
         const fullWidth = editor.scrollWidth;
       
-        // Use html2canvas to snapshot the full content
         const canvas = await html2canvas(editor, {
           scale: 2,
           logging: true,
@@ -111,7 +107,6 @@ const LectureView = ({ notes, setNotes }) => {
           height: fullHeight
         });
       
-        // Restore editor styles if necessary
         editor.style.height = '';
         editor.style.overflow = '';
       
@@ -122,17 +117,15 @@ const LectureView = ({ notes, setNotes }) => {
           format: 'a4'
         });
       
-        const imgWidth = 210; // A4 width in mm
+        const imgWidth = 210;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
         let heightLeft = imgHeight;
         let position = 0;
       
-        // Add the initial image to PDF
         pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= 297; // A4 height in mm
+        heightLeft -= 297;
       
-        // Handle content that spans multiple pages
         while (heightLeft > 0) {
           position = heightLeft - imgHeight;
           pdf.addPage();
