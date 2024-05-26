@@ -2,8 +2,7 @@ import React from 'react';
 import "./Homepage.css";
 import { useState } from 'react';
 import { useUser } from "./UserContext";
-
-
+import { port, craftTitle, getMetaData } from '../Resources';
 
 const HomePage = () => {
     const [title, setTitle] = useState("");
@@ -39,6 +38,9 @@ const HomePage = () => {
         try {
           const response = await fetch("http://localhost:5000/create_lecture", {
             method: "POST",
+    const handleCreate = () => {
+        fetch(`http://localhost:${port}/createCourse`, {
+            method: 'POST',
             headers: {
               "Content-Type": "application/json"
             },
@@ -61,6 +63,20 @@ const HomePage = () => {
     const handleJoin = async () => {
         try {
             const response = await fetch("http://localhost:5000/join_lecture", {
+            body: JSON.stringify(course),
+        })
+        .then(response => response.json())
+.then(data => {
+    navigator.clipboard.writeText(data)
+    .then(() => alert(`Course code for ${title} is \n ${data} \n /it was copied to your clipboard/`))
+    .catch((error) => console.error('Error:', error));
+    return data;
+})
+.catch((error) => console.error('Error:', error));
+      };
+
+    const handleJoin = () => {
+        fetch(`http://localhost:${port}/joinCourse`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

@@ -2,18 +2,11 @@ import React from 'react';
 import './Header.css';
 import logoImage from './pzsp2icon.png';
 import { Link, useNavigate  } from 'react-router-dom';
-import { openFile } from './openFile';
 import {useUser} from './UserContext';
 
-const Header = ({ setNotes }) => {
+const Header = () => {
   const navigate = useNavigate();
   const { user, logout } = useUser();
-  const handleOpen = () => {
-    openFile((content) => {
-      navigate("/notes");
-      setNotes(content);
-    });
-  }
 
   const handleLogout = () => {
     logout()
@@ -28,10 +21,7 @@ const Header = ({ setNotes }) => {
         <Link to="/">
           <img src={logoImage} alt="Home" className="image" />
         </Link>
-          <div className="frame">
-            <div className="link" onClick={handleOpen}>Open</div>
-          </div>
-          <Link to="/notes" className='no-underscore'>
+          <Link to="/notes/-1" className='no-underscore'>
             <div className="frame">
               <div className="link">Notes</div>
             </div>
