@@ -6,6 +6,7 @@ from pydub import AudioSegment # pip install pydub sudo apt install ffmpeg
 from pydub import silence as S
 
 import transcribe
+import sender
 import globals as G
 import translate
 import numpy as np
@@ -47,8 +48,8 @@ def callback(indata, frames, time, status):
         return
     last_data_buffer = indata[cutting_frame:]
     text = translate.translate_pl_to_en(text)
-    print(text)
-#    sender.send_text(text)
+    #print(text)
+    sender.send_text(text)
 
 if __name__ == "__main__":
     model = transcribe.get_model()
