@@ -15,7 +15,7 @@ def sender():
 def send_text(text):
     data = {"text": text}
     response = requests.post("http://127.0.0.1:5000/", json=data)
-    print(f"Sent: {text}, Response: {response.json()}")
+    # print(f"Sent: {text}, Response: {response.json()}")
 
 def random_sentence_in_polish():
     polish_sentences = [

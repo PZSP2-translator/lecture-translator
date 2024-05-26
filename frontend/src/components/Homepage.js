@@ -15,7 +15,7 @@ const HomePage = () => {
         };
 
     const handleCreate = () => {
-        fetch(`http://localhost:${port}/createCourse`, {
+        fetch('http://localhost:5000/createCourse', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
