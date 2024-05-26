@@ -38,9 +38,6 @@ const HomePage = () => {
         try {
           const response = await fetch("http://localhost:5000/create_lecture", {
             method: "POST",
-    const handleCreate = () => {
-        fetch(`http://localhost:${port}/createCourse`, {
-            method: 'POST',
             headers: {
               "Content-Type": "application/json"
             },
@@ -53,45 +50,46 @@ const HomePage = () => {
 
           const data = await response.json();
           console.log(data)
-        //   login({ username, id: data.user_id });
 
           } catch (error) {
           console.error("Error during creating lecture:", error);
           }
         };
 
-    const handleJoin = async () => {
-        try {
-            const response = await fetch("http://localhost:5000/join_lecture", {
-            body: JSON.stringify(course),
-        })
-        .then(response => response.json())
-.then(data => {
-    navigator.clipboard.writeText(data)
-    .then(() => alert(`Course code for ${title} is \n ${data} \n /it was copied to your clipboard/`))
+    // const handleJoin = async () => {
+    //     try {
+    //         const response = await fetch("http://localhost:5000/join_lecture", {
+    //         body: JSON.stringify(course),
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //     navigator.clipboard.writeText(data)
+    //     .then(() => alert(`Course code for ${title} is \n ${data} \n /it was copied to your clipboard/`))
+    //     .catch((error) => console.error('Error:', error));
+    //     return data;
+    //     })
+    //     catch (error) {
+    //                 console.error("Error during joining in:", error);
+    //                 }
+    //   };
+
+const handleJoin = () => {
+    fetch('http://localhost:5000/join_lecture', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            "code": code
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        window.location.href = `/notes/${data.code}`;
+    })
     .catch((error) => console.error('Error:', error));
-    return data;
-})
-.catch((error) => console.error('Error:', error));
-      };
-
-    const handleJoin = () => {
-        fetch(`http://localhost:${port}/joinCourse`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ lecture_code: code, user_id: user.id, user_type: "S" })
-            });
-
-            if (!response.ok) {
-            throw new Error("Error fetching data");
-            }
-
-            } catch (error) {
-            console.error("Error during joining in:", error);
-            }
-        };
+};
 
 
 
