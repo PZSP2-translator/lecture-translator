@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db import login
+from .db import login, get_lectures
 from dataclasses import dataclass
 from pydantic import BaseModel
 import random
@@ -17,6 +17,9 @@ class Course(BaseModel):
 
 class JoinCourseRequest(BaseModel):
     code: str
+
+class UserLecturesRequest(BaseModel):
+    user_id: int
 
 
 app = FastAPI()
@@ -48,6 +51,22 @@ async def get_courses(request: JoinCourseRequest):
             # If no course was found, return an empty dictionary
     return {}
     return courses #TODO DELETE ME! # Return the list of courses
+
+
+@app.post("/userLectures")
+async def user_lectures(request: UserLecturesRequest):
+    try:
+        lectures = get_lectures(request.user_id)
+        if lectures:
+            return [
+                {"lecture_id": lec[0], "title": lec[1], "date": lec[2], "user_type": lec[3]} 
+                for lec in lectures
+            ]
+        else:
+            return []
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 
