@@ -16,45 +16,45 @@ const HomePage = () => {
             date: 0
         };
 
-// const handleCreate = () => {
-//         fetch('http://localhost:5000/createCourse', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(course),
-//         })
-//         .then(response => response.json())
-//     .then(data => {
-//         navigator.clipboard.writeText(data)
-//         .then(() => alert(`Course code for ${title} is \n ${data} \n /it was copied to your clipboard/`))
-//         .catch((error) => console.error('Error:', error));
-//         return data;
-//     })
-//     .catch((error) => console.error('Error:', error));
-//     };
-
-    const handleCreate = async () => {
-        try {
-          const response = await fetch("http://localhost:5000/create_lecture", {
-            method: "POST",
+const handleCreate = () => {
+        fetch('http://localhost:5000/createCourse', {
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json"
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ title: title })
-          });
+            body: JSON.stringify(course),
+        })
+        .then(response => response.json())
+    .then(data => {
+        navigator.clipboard.writeText(data)
+        .then(() => alert(`Course code for ${title} is \n ${data} \n /it was copied to your clipboard/`))
+        .catch((error) => console.error('Error:', error));
+        return data;
+    })
+    .catch((error) => console.error('Error:', error));
+    };
 
-          if (!response.ok) {
-            throw new Error("Error fetching data");
-          }
+    // const handleCreate = async () => {
+    //     try {
+    //       const response = await fetch("http://localhost:5000/create_lecture", {
+    //         method: "POST",
+    //         headers: {
+    //           "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify({ title: title })
+    //       });
 
-          const data = await response.json();
-          console.log(data)
+    //       if (!response.ok) {
+    //         throw new Error("Error fetching data");
+    //       }
 
-          } catch (error) {
-          console.error("Error during creating lecture:", error);
-          }
-        };
+    //       const data = await response.json();
+    //       console.log(data)
+
+    //       } catch (error) {
+    //       console.error("Error during creating lecture:", error);
+    //       }
+    //     };
 
     // const handleJoin = async () => {
     //     try {
@@ -73,28 +73,8 @@ const HomePage = () => {
     //                 }
     //   };
 
-const handleJoin = () => {
-    fetch('http://localhost:5000/join_lecture', {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "code": code
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        window.location.href = `/notes/${data.code}`;
-    })
-    .catch((error) => console.error('Error:', error));
-};
-
-
-
 // const handleJoin = () => {
-//     fetch('http://localhost:5000/joinCourse', {
+//     fetch('http://localhost:5000/join_lecture', {
 //         method: "POST",
 //         headers: {
 //             'Content-Type': 'application/json',
@@ -110,6 +90,26 @@ const handleJoin = () => {
 //     })
 //     .catch((error) => console.error('Error:', error));
 // };
+
+
+
+const handleJoin = () => {
+    fetch('http://localhost:5000/joinCourse', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            "code": code
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        window.location.href = `/notes/${data.code}`;
+    })
+    .catch((error) => console.error('Error:', error));
+};
 
     return (
         <div className="divider-homepage">
