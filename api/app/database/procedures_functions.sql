@@ -83,24 +83,32 @@ END;
 
 CREATE SEQUENCE participant_id_seq START WITH 1;
 
-CREATE OR REPLACE PROCEDURE join_lecture(id_lecture IN INTEGER, id_user IN INTEGER, user_type IN VARCHAR2, already OUT NUMBER)
+CREATE OR REPLACE PROCEDURE join_lecture(code_lecture IN VARCHAR2, id_user IN INTEGER, user_type IN VARCHAR2, already OUT NUMBER)
 AS
     p_participant_id INTEGER;
     v_already_joined NUMBER;
+    v_lecture_id INTEGER;
 BEGIN
+    SELECT lecture_id into v_lecture_id
+    from lectures
+    where student_code = code_lecture;
+
     SELECT COUNT(*) INTO v_already_joined
     FROM PARTICIPANTS
-    WHERE lecture_id = id_lecture AND user_id = id_user;
+    WHERE lecture_id = v_lecture_id AND user_id = id_user;
 
      IF v_already_joined = 0 THEN
         SELECT participant_id_seq.nextval INTO p_participant_id FROM DUAL;
         INSERT INTO PARTICIPANTS (participant_id, user_type, lecture_id, user_id)
-            VALUES (p_participant_id, user_type, id_lecture, id_user);
+            VALUES (p_participant_id, user_type, v_lecture_id, id_user);
         COMMIT;
         already := 0;
     ELSE
         already := 1;
     END IF;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        already := -1;
 END;
 /
 
