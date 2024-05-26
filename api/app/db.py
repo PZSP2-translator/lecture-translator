@@ -1,11 +1,8 @@
-import getpass
 import oracledb
 
 un = "PZSP06"
 cs = "ora2.ia.pw.edu.pl/iais"
-# pw = getpass.getpass(
-#     f"Enter password for {un}@{cs}: "
-# )  # zaszyfrować i przesłać hasło do bazy
+# pw = # zaszyfrować i przesłać hasło do bazy
 
 
 def load_password_from_file(path):
@@ -31,7 +28,6 @@ def load_sql_file(filename):
 #             # cursor.executescript(proc_func)
 #         connection.commit()
 
-# to ma zwracać jeszcze tytuł i datę
 def get_lectures(user_id):
     rows = []
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
@@ -70,12 +66,12 @@ def create_user(first_name, last_name, mail, pass_hash):
             return is_succesful.getvalue()
 
 
-def join_lecture(lecture_id, user_id, user_type):
+def join_lecture(lecture_code, user_id, user_type):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             already_joined = cursor.var(int)
             cursor.callproc(
-                "join_lecture", [lecture_id, user_id, user_type,
+                "join_lecture", [lecture_code, user_id, user_type,
                                  already_joined]
             )
             return already_joined.getvalue()
@@ -105,3 +101,23 @@ def change_password(user_id, pass_hash):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             cursor.callproc("change_password", [user_id, pass_hash])
+
+
+def get_lecture_id(lecture_code):
+    with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
+        with connection.cursor() as cursor:
+            for row in cursor.execute("""
+select lecture_id
+from lectures
+where student_code=:1""", [lecture_code]):
+                return row
+
+
+def get_note(user_id, lecture_id):
+    with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
+        with connection.cursor() as cursor:
+            for row in cursor.execute("""
+select note
+from participants
+where user_id=:1 and lecture_id:=2""", [user_id, lecture_id]):
+                return row
