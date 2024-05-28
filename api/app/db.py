@@ -2,8 +2,6 @@ import oracledb
 
 un = "PZSP06"
 cs = "ora2.ia.pw.edu.pl/iais"
-# pw = # zaszyfrować i przesłać hasło do bazy
-
 
 def load_password_from_file(path):
     return open(path, "r").read()
@@ -40,12 +38,17 @@ where user_id=:1""", [user_id]):
     return rows
 
 
-def create_lecture(title):
+def create_lecture(title, lecturer_id=None):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
+            lecturer_code = cursor.var(str)
             lecture_id = cursor.var(int)
-            cursor.callproc("create_lecture", [title, lecture_id])
-            return lecture_id.getvalue()
+            cursor.callproc("create_lecture", [title, lecturer_code, lecture_id])
+            lecture_id = lecture_id.getvalue()
+            if lecturer_id:
+                already_joined = cursor.var(int)
+                cursor.callproc("join_lecture", [lecture_id, lecturer_id, "L", already_joined])
+            return lecturer_code.getvalue(), lecture_id
 
 
 def login(mail, pass_hash):
@@ -66,15 +69,22 @@ def create_user(first_name, last_name, mail, pass_hash):
             return is_succesful.getvalue()
 
 
-def join_lecture(lecture_code, user_id, user_type):
+def join_lecture(lecture_code, user_id=None, user_type="S"):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
+            query = """select lecture_id from lectures where student_code=:1"""
+            cursor.execute(query, [lecture_code])
+            result = cursor.fetchone()
+            if result is None:
+                return result, -1
+            elif user_id is None:
+                return result, 0
             already_joined = cursor.var(int)
             cursor.callproc(
                 "join_lecture", [lecture_code, user_id, user_type,
                                  already_joined]
             )
-            return already_joined.getvalue()
+            return result, already_joined.getvalue()
 
 
 def add_transcription(lecture_id, text):

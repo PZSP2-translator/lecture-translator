@@ -10,7 +10,7 @@ import random
 import datetime
 import json
 
-@dataclass
+
 class Course(BaseModel):
     course_id: int
     name: str
@@ -21,6 +21,7 @@ class Course(BaseModel):
 class JoinCourseRequest(BaseModel):
     code: str
 
+
 class UserLecturesRequest(BaseModel):
     user_id: int
 
@@ -29,6 +30,7 @@ app = FastAPI()
 
 # Initialize an empty list to store courses
 courses = []
+
 
 @app.post("/createCourse")
 async def create_course(course: Course):
@@ -44,6 +46,7 @@ async def create_course(course: Course):
     return course.code
     # return courses
 
+
 @app.post("/joinCourse")
 async def get_courses(request: JoinCourseRequest):
     # Return the course with the given code
@@ -53,7 +56,6 @@ async def get_courses(request: JoinCourseRequest):
             return course
             # If no course was found, return an empty dictionary
     return {}
-    return courses #TODO DELETE ME! # Return the list of courses
 
 
 @app.post("/userLectures")
@@ -62,15 +64,13 @@ async def user_lectures(request: UserLecturesRequest):
         lectures = get_lectures(request.user_id)
         if lectures:
             return [
-                {"lecture_id": lec[0], "title": lec[1], "date": lec[2], "user_type": lec[3]} 
+                {"lecture_id": lec[0], "title": lec[1], "date": lec[2], "user_type": lec[3]}
                 for lec in lectures
             ]
         else:
             return []
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
 
 
 app.add_middleware(
@@ -92,8 +92,6 @@ class Transcription(BaseModel):
     text: str
 
 
-
-
 @app.post("/")
 def main(data: Transcription):
     l.append(data)
@@ -110,7 +108,9 @@ async def root():
 class AskQuestionRequest(BaseModel):
     question: str
 
+
 questions = set()
+
 
 @app.post("/questions") # TODO make it so it works with multiple lectures at once
 async def add_question(request: AskQuestionRequest):
@@ -119,9 +119,11 @@ async def add_question(request: AskQuestionRequest):
     questions.remove("ajaj")
     print(questions)
 
+
 @app.delete("/question")
 async def del_question(request: AskQuestionRequest):
     questions.remove(request.question)
+
 
 @app.get("/questions") # TODO implement this as Server Sent Event (SSE)
 async def get_question():
@@ -129,10 +131,6 @@ async def get_question():
     questions_json = json.dumps(questions_list)
     print(questions_json)
     return questions_list
-
-# Docker
-# pip install fastapi==0.78.0 uvicorn==0.17.6
-# uvicorn main:app --reload
 
 
 class LoginRequest(BaseModel):
@@ -179,30 +177,33 @@ def change_pass_req(password_request: ChangePasswordRequest):
 class JoinLectureRequest(BaseModel):
     user_id: int = None
     lecture_code: str
-    user_type: str
+    user_type: str = "S"
 
 
 # dla użytkownika zalogowanego, tylko dodaje do listy uczestników
 @app.post("/join_lecture")
 def join_lecture_req(join_lecture_request: JoinLectureRequest):
-    is_succesful = join_lecture(join_lecture_request.lecture_code,
-                                join_lecture_request.user_id,
-                                join_lecture_request.user_type)
+    lecture_id, is_succesful = join_lecture(join_lecture_request.lecture_code,
+                                            join_lecture_request.user_id,
+                                            join_lecture_request.user_type)
     if is_succesful == 1:
         raise HTTPException(status_code=401, detail="User already joined the course.")
     elif is_succesful == -1:
         raise HTTPException(status_code=401, detail="Lecture with given code doesn't exist.")
+    return {"lecture_id": lecture_id}
 
 
 class CreateLectureRequest(BaseModel):
     title: str
+    lecturer_id: int = None
 
 
 # to ma zwracać kod wykładowcy i studenta chyba?
 @app.post("/create_lecture")
 def create_lecture_req(create_lecture_request: CreateLectureRequest):
-    lecture_id = create_lecture(create_lecture_request.title)
-    return {"lecture_id": lecture_id}
+    lecturer_code, lecture_id = create_lecture(create_lecture_request.title,
+                                               create_lecture_request.lecturer_id)
+    return {"lecturer_code": lecturer_code, "lecture_id": lecture_id}
 
 
 class PresentationRequest(BaseModel):

@@ -3,11 +3,13 @@ import "./Homepage.css";
 import { useState } from 'react';
 import { useUser } from "./UserContext";
 import { port, craftTitle, getMetaData } from '../Resources';
+import { useNavigate  } from 'react-router-dom';
 
 const HomePage = () => {
     const [title, setTitle] = useState("");
     const [code, setCode] = useState("");
     const { user } = useUser();
+    const navigate = useNavigate();
 
         const course = {
             course_id: 0,
@@ -16,45 +18,34 @@ const HomePage = () => {
             date: 0
         };
 
-const handleCreate = () => {
-        fetch('http://localhost:5000/createCourse', {
-            method: 'POST',
+    const handleCreate = async () => {
+        try {
+
+            const requestBody = { title: title };
+
+            if (user) {
+                requestBody.lecturer_id = user.id;
+            }
+        const response = await fetch("http://localhost:5000/create_lecture", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+            "Content-Type": "application/json"
             },
-            body: JSON.stringify(course),
-        })
-        .then(response => response.json())
-    .then(data => {
-        navigator.clipboard.writeText(data)
-        .then(() => alert(`Course code for ${title} is \n ${data} \n /it was copied to your clipboard/`))
-        .catch((error) => console.error('Error:', error));
-        return data;
-    })
-    .catch((error) => console.error('Error:', error));
-    };
+            body: JSON.stringify(requestBody)
+        });
+          if (!response.ok) {
+            throw new Error("Error fetching data");
+          }
 
-    // const handleCreate = async () => {
-    //     try {
-    //       const response = await fetch("http://localhost:5000/create_lecture", {
-    //         method: "POST",
-    //         headers: {
-    //           "Content-Type": "application/json"
-    //         },
-    //         body: JSON.stringify({ title: title })
-    //       });
+          const data = await response.json();
+          console.log(title)
+          navigator.clipboard.writeText(data).then(() => alert(`Code for ${title} is \n ${data.lecturer_code} \n /it was copied to your clipboard/`))
 
-    //       if (!response.ok) {
-    //         throw new Error("Error fetching data");
-    //       }
-
-    //       const data = await response.json();
-    //       console.log(data)
-
-    //       } catch (error) {
-    //       console.error("Error during creating lecture:", error);
-    //       }
-    //     };
+          navigate(`/question/${data.lecture_id}`)
+          } catch (error) {
+          console.error("Error during creating lecture:", error);
+          }
+        };
 
     // const handleJoin = async () => {
     //     try {
@@ -73,8 +64,64 @@ const handleCreate = () => {
     //                 }
     //   };
 
+    const handleJoin = async () => {
+        try {
+            const requestBody = { lecture_code: code };
+
+            if (user) {
+                requestBody.user_id = user.id;
+            }
+        const response = await fetch("http://localhost:5000/join_lecture", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+          if (!response.ok) {
+            throw new Error("Error fetching data");
+          }
+
+          const data = await response.json();
+          console.log(data.lecture_id)
+
+          navigate(`/notes/${data.lecture_id}`)
+          } catch (error) {
+          console.error("Error during joining lecture:", error);
+          }
+        };
+
+
+    // const handleJoin = async () => {
+    //     const requestBody = { title: code };
+
+    //         if (user) {
+    //             requestBody.user_id = user.id;
+    //         }
+    //     fetch('http://localhost:5000/join_lecture', {
+    //         method: "POST",
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             "code": code
+    //         }),
+    //     })
+    //     const data = await response.json();
+    //       console.log(title)
+
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log(data);
+    //         window.location.href = `/notes/${data.code}`;
+    //     })
+    //     .catch((error) => console.error('Error:', error));
+    // };
+
+
+
 // const handleJoin = () => {
-//     fetch('http://localhost:5000/join_lecture', {
+//     fetch('http://localhost:5000/joinCourse', {
 //         method: "POST",
 //         headers: {
 //             'Content-Type': 'application/json',
@@ -90,26 +137,6 @@ const handleCreate = () => {
 //     })
 //     .catch((error) => console.error('Error:', error));
 // };
-
-
-
-const handleJoin = () => {
-    fetch('http://localhost:5000/joinCourse', {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "code": code
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        window.location.href = `/notes/${data.code}`;
-    })
-    .catch((error) => console.error('Error:', error));
-};
 
     return (
         <div className="divider-homepage">
