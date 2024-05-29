@@ -1,75 +1,79 @@
 import sounddevice as sd
 from scipy.io.wavfile import write
 import tempfile
+import argparse
 
-from pydub import AudioSegment  # pip install pydub sudo apt install ffmpeg
-from pydub import silence as S
+from pydub import AudioSegment
 
-import transcribe
-import sender
-import globals as G
-import translate
+
 import numpy as np
-import time
+from sender import send_text
+from transcribe import get_model
+from translate import translate_pl_to_en
+from globals import FREQ, BLOCK_LENGTH_SEC
 
 
-def choose_cutting_point(indata):
-    cutting_frame = 0
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmpfile:
-        filename = tmpfile.name
-        write(filename, G.FREQ, indata)
-        song = AudioSegment.from_wav(filename)
-        dBFS = song.dBFS
-        silence = S.detect_silence(song, min_silence_len=100, silence_thresh=dBFS - 60)
-        if len(silence) <= 1:
-            cutting_frame = len(indata)
-        else:
-            cutting_frame = (
-                ((silence[-1][1] - silence[-1][0]) // 2 + silence[-1][0])
-                * G.FREQ
-                // 1000
-            )  # converting from ms to s
-    return cutting_frame
+class LectureTranscriber:
+    def __init__(self, lecture_code, ip_address):
+        self.lecture_code = lecture_code
+        self.ip_address = ip_address
+        self.model = get_model()
+        self.last_data_buffer = np.zeros([0, 1], dtype='float32')
+
+    def process_audio(self, indata):
+        """Process audio to find silence and determine cutting point."""
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=True) as tmpfile:
+            filename = tmpfile.name
+            write(filename, FREQ, indata)
+            audio_segment = AudioSegment.from_wav(filename)
+            silence_threshold = audio_segment.dBFS - 60
+            silence_intervals = S.detect_silence(audio_segment, min_silence_len=100, silence_thresh=silence_threshold)
+
+            if not silence_intervals:
+                return len(indata)
+            
+            last_silence_end = silence_intervals[-1][1]
+            last_silence_start = silence_intervals[-1][0]
+            cutting_point = (last_silence_end + last_silence_start) // 2
+            return cutting_point * FREQ // 1000
 
 
-def transcribe_fragment(
-    data,
-):  # currently making a temporary file, test giving data after dividing by 32768.0 as stated below
-    # Convert in-ram buffer to something the model can use directly without needing a temp file.
-    # Convert data from 16 bit wide integers to floating point with a width of 32 bits.
-    # Clamp the audio stream frequency to a PCM wavelength compatible default of 32768hz max.
-    # audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+    def transcribe_audio(self, audio_data):
+        """Transcribe audio data using the loaded model."""
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=True) as tmpfile:
+            write(tmpfile.name, FREQ, audio_data)
+            return self.model.transcribe(tmpfile.name, language="pl", fp16=False)["text"]
 
-    result = None
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmpfile:
-        filename = tmpfile.name
-        array_to_translate = np.concatenate((last_data_buffer, data), axis=0)
-        write(filename, G.FREQ, array_to_translate)
-        result = model.transcribe(filename, language = "pl", fp16=False)
-    return result["text"]
+    def process_transcription(self, transcription):
+        """Translate transcription and send it"""
+        translated_text = translate_pl_to_en(transcription)
+        send_text(translated_text, self.ip_address, self.lecture_code)
 
+    def audio_callback(self, indata, frames, time, status):
+        """Handle incoming audio"""
+        if status:
+            print(f"Error: {status}")
+        cutting_frame = self.process_audio(indata)
+        transcription = self.transcribe_audio(indata[:cutting_frame])
+        if transcription:
+            self.process_transcription(transcription)
+        self.last_data_buffer = indata[cutting_frame:]
 
-def callback(indata, frames, time, status):
-    global last_data_buffer
-    cutting_frame = choose_cutting_point(indata)
-    text = transcribe_fragment(indata[:cutting_frame])
-    if text == None or text == "":
-        return
-    last_data_buffer = indata[cutting_frame:]
-    text = translate.translate_pl_to_en(text)
-    sender.send_text(text)
+    def start(self):
+        """Start the audio transcription"""
+        print(f"Starting transcription for lecture: {self.lecture_code} at IP: {self.ip_address}")
+        with sd.InputStream(device=1, samplerate=FREQ, blocksize=FREQ * BLOCK_LENGTH_SEC,
+                            channels=1, callback=self.audio_callback):
+            print("Microphone started. Press Enter to quit.")
+            input()
+
 
 
 if __name__ == "__main__":
-    model = transcribe.get_model()
-    last_data_buffer = np.zeros([0, 1], dtype="float32")
+    parser = argparse.ArgumentParser(description="Backend script to record and send transcription.")
+    parser.add_argument("lecture_code", type=str, help="Code of the lecture to transcribe.", default="TESTcode", nargs='?')
+    parser.add_argument("ip_address", type=str, help="IP address for sending transcriptions.", default="127.0.0.1", nargs='?')
 
-    with sd.InputStream(device=1,
-                samplerate=G.FREQ, blocksize=G.FREQ * G.BLOCK_LENGTH_SEC,
-                channels=1, callback=callback):
-        time.sleep(5)
-        print("Microphone started")
-        print("#" * 80)
-        print("press Enter to quit")
-        print("#" * 80)
-        input()
+    args = parser.parse_args()
+    transcriber = LectureTranscriber(args.lecture_code, args.ip_address)
+    transcriber.start()
