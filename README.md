@@ -15,16 +15,40 @@ uczestnictwa w przedmiotach oferowanych przez Politechnikę Warszawską, które 
 prowadzone tylko w języku polskim.
 
 
-## To run
+## To run docker
 
 needed to have npm, node installed
 
 następnie z poziomu folderu translator/frontend:
 
-```npm install``` (przy pierwszym uruchomieniu)
 ```npm start```
-### starting backend
+
+### starting microphone
 the docker-compose assumes that your setup is windows => WSL2 = > docker containers, you will most likely have to edit the microphone container, if your setup is different
 
-następnie z poziomu folderu translator/:
-```docker-compose up --build```
+in your wsl2 terminal:
+navigate to the folder you want to clone to
+git clone https://github.com/PZSP2-translator/lecture-translator.git
+```docker-compose -f docker-compose-microphone.yml up --build```
+
+
+docker exec -it PZSP06_microphone python3 microphone.py [lecture_number] [server_ip_address]
+
+# starting api + frontend
+
+### add firewall + proxy rules
+add a firewall rule to allow tcp connections to port 3000 and port 5000
+
+keep in mind, ubuntu on wsl2 address changes every time you reboot wsl, so you need to readd the rule everytime after reset
+
+in terminal with administrator rights
+netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=[wsl2ip]
+netsh interface portproxy add v4tov4 listenport=5000 listenaddress=0.0.0.0 connectport=5000 connectaddress=[wsl2ip]
+
+in your wsl2 terminal:
+navigate to the folder you want to clone to
+git clone https://github.com/PZSP2-translator/lecture-translator.git
+navigate to frontend folder
+```npm install``` (przy pierwszym uruchomieniu)
+navigate to main folder
+```docker-compose -f docker-compose-api-frontend.yml up --build```
