@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import "./LectureView.css";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -7,44 +7,39 @@ import { openFile } from './openFile';
 import 'react-quill/dist/quill.snow.css';
 import ReactQuill from 'react-quill';
 import { port, craftTitle, getMetaData} from '../Resources';
+import { extractDate } from './utils';
 
 
-
-function getSrc(html) {
-    var regex = /src="([^"]+)"/;
-    return html.match(regex)[1];
-}
 
 const LectureView = ({ notes, setNotes }) => {
     const quillRef = useRef(null);
     const [localNotes, setLocalNotes] = useState(notes);
-
-
-    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
     const [title, setTitle] = useState("Lecture");
     const [question, setQuestion] = useState("");
     const [transcription, setTranscription] = useState("");
+    const [link, setLink] = useState("");
+    const [lectureID, setLectureID] = useState(useParams().id);
+    const [lastLectureID, setLastLectureID] = useState(sessionStorage.getItem("lastLectureID"))
 
-    console.log(lastCode);
-
-
-
-    const htmllink = '<iframe src="https://1drv.ms/p/c/77287afd4195c30f/IQMPw5VB_XooIIB3dAYAAAAAATZKsZ-Zjucl6tGxFUc8pfM" width="402" height="327" frameborder="0" scrolling="no"></iframe>';
-    const link = getSrc(htmllink) + "?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=1";
-
-    let { code } = useParams();
-    if (code === "-1") {
-        code = lastCode;
-    }
+    const navigate = useNavigate();
 
     useEffect(() => {
-        sessionStorage.setItem("lastCode", code);
-
+        if (lectureID === "-1") {
+            navigate(`/notes/${lastLectureID}`);
+            setLectureID(lastLectureID);
+        }
+        
         (async () => {
-            const result = await craftTitle(code);
+            if (lectureID === "-1") {
+                return;
+            }
+            const result = await craftTitle(lectureID);
+            sessionStorage.setItem("lastLectureID", lectureID);
             setTitle(result);
         })();
+    }, [lectureID, lastLectureID, navigate]);
 
+    useEffect(() => {
         const fetchData = async()=>{
             try{
             const responce = await fetch(`http://localhost:${port}/`);
@@ -88,15 +83,15 @@ const LectureView = ({ notes, setNotes }) => {
 
     const exportToPDF = async () => {
         const editor = quillRef.current.getEditor().root;
-        
+
         editor.style.height = 'auto';
         editor.style.overflow = 'visible';
-        
+
         await new Promise(resolve => setTimeout(resolve, 100));
-      
+
         const fullHeight = editor.scrollHeight;
         const fullWidth = editor.scrollWidth;
-      
+
         const canvas = await html2canvas(editor, {
           scale: 2,
           logging: true,
@@ -106,35 +101,35 @@ const LectureView = ({ notes, setNotes }) => {
           width: fullWidth,
           height: fullHeight
         });
-      
+
         editor.style.height = '';
         editor.style.overflow = '';
-      
+
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
         const pdf = new jsPDF({
           orientation: 'p',
           unit: 'mm',
           format: 'a4'
         });
-      
+
         const imgWidth = 210;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
+
         let heightLeft = imgHeight;
         let position = 0;
-      
+
         pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
         heightLeft -= 297;
-      
+
         while (heightLeft > 0) {
           position = heightLeft - imgHeight;
           pdf.addPage();
           pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
           heightLeft -= 297;
         }
-      
+
         pdf.save('exportedNotes.pdf');
-      };      
+      };
 
     const handleQuestion = () => {
         console.log("MY CHANGES" + question);
@@ -188,13 +183,29 @@ const LectureView = ({ notes, setNotes }) => {
         ]
     };
 
+    useEffect(() => {
+        const fetchLecture = async () => {
+            try {
+                const response = await fetch(`http://localhost:${port}/lecture/${lectureID}`);
+                if (!response.ok) {
+                    throw new Error("XD" + response.statusText);
+                }
+                const data = await response.json();
+                // setLink(data[4])
+            } catch (error) {
+                console.error("ERROR", error);
+            }
+        };
+        fetchLecture();
+    }, []);
+
     return (
         <div className="component-container-lectureview">
             <div className="component-title-lectureview">{title}</div>
             <div className='divider-lectureview'>
                 <div className="element-lectureview">
                     <div className="transcription">{transcription}</div>
-                    <iframe className="presentation"
+                    <iframe className="presentation" title='presentation'
                         src={link} width="730px" height="270px">
                     </iframe>
                 </div>

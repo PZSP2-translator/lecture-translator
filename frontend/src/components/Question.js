@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import "./Question.css";
 import { port, craftTitle, getMetaData} from '../Resources';
+import { useNavigate, useParams } from 'react-router-dom';
+import {ip} from "../Resources.js";
 
+
+
+function getSrc(html) {
+    var regex = /src="([^"]+)"/;
+    return html.match(regex)[1];
+}
 
 const Question = () => {
-//    const [selected, setSelected] = useState(null);
     const [title, setTitle] = useState("Lecture");
-    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
     const [link, setLink] = useState("");
-    const [questions, setQuestions] = useState([])
+    const [questions, setQuestions] = useState([]);
+    const [lastLectureID, setLastLectureID] = useState(sessionStorage.getItem("lastLectureID"));
+    const [lectureID, setLectureID] = useState(useParams().id);
+
     const handleAnswer = (index) => { // TODO, usunąć selected? nie aktualizuje się na czas!!!
 //        setSelected(index);
-
-
-        fetch(`http://localhost:${port}/question`, {
+        fetch(`${ip}/question/${lectureID}`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',
@@ -33,40 +40,86 @@ const Question = () => {
         setQuestions(new_questions);
     };
 
-    const handleLink = () => {
-        console.log(link)
+    const handleLink = async () => {
+        try {
+            const requestBody = { link: getSrc(link),
+                lecture_id: lectureID
+             }
+        const response = await fetch(`${ip}/presentation`, {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+          if (!response.ok) {
+            throw new Error("Error fetching data");
+          }
+
+          alert(`Presentation added.`)
+          setLink("");
+
+          } catch (error) {
+          console.error("Error during adding presenation:", error);
+          }
     };
 
+    const navigate = useNavigate();
+
     useEffect(() => {
+        if (lectureID === "-1") {
+            navigate(`/question/${lastLectureID}`);
+            setLectureID(lastLectureID);
+        }
+        
         (async () => {
-            const result = await craftTitle(lastCode);
+            if (lectureID === "-1") {
+                return;
+            }
+            const result = await craftTitle(lectureID);
+            sessionStorage.setItem("lastLectureID", lectureID);
             setTitle(result);
         })();
-    }, [lastCode]);
+    }, [lectureID, lastLectureID, navigate]);
 
     useEffect(() => {
         const fetchData = async()=>{
             try{
-            const responce = await fetch(`http://localhost:${port}/questions`);
-            if (!responce.ok){
-                throw new Error("XD" + responce.statusText);
-            }
-            const data = await responce.json();
-            setQuestions(data);
-            // console.log("Received data:", data);
+                const responce = await fetch(`http://localhost:${port}/questions/${lectureID}`);
+                if (!responce.ok){
+                    throw new Error("XD" + responce.statusText);
+                }
+                const data = await responce.json();
+                setQuestions(data);
             }
             catch (error){
                 console.error("ERROR", error);
             }
-            console.log(questions.length === 0)
-            console.log(questions.length)
-    };
+            // console.log(questions.length === 0)
+            // console.log(questions.length)
+        };
 
-    // fetchData();
-    const intervalId = setInterval(fetchData, 1000);
+        // fetchData();
+        const intervalId = setInterval(fetchData, 1000);
 
-    return () => clearInterval(intervalId);
-}, []);
+        return () => clearInterval(intervalId);
+    }, []);
+
+    useEffect(() => {
+        const fetchLecture = async () => {
+            try {
+                const response = await fetch(`http://localhost:${port}/lecture/${lectureID}`);
+                if (!response.ok) {
+                    throw new Error("XD" + response.statusText);
+                }
+                const data = await response.json();
+                // setTitle(craftTitle(code));
+            } catch (error) {
+                console.error("ERROR", error);
+            }
+        };
+        fetchLecture();
+    }, []);
 
     const getNoQuestionsTest = () => {
         return "There are currently no questions posted"

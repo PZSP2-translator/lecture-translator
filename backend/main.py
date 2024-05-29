@@ -4,7 +4,7 @@ import tempfile
 import argparse
 
 from pydub import AudioSegment
-from pydub import silence as S
+
 
 import numpy as np
 from sender import send_text
@@ -66,6 +66,8 @@ class LectureTranscriber:
                             channels=1, callback=self.audio_callback):
             print("Microphone started. Press Enter to quit.")
             input()
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Backend script to record and send transcription.")

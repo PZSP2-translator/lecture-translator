@@ -1,4 +1,4 @@
-.component-container-chooselecture {
+.component-container-history {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -11,12 +11,12 @@
     color: black;
   }
 
-  .component-container-chooselecture > *:first-child {
+  .component-container-history > *:first-child {
     margin-top: 100px;
   }
 
 
-  .component-title-chooselecture {
+  .component-title-history {
     justify-content: center;
     align-items:start;
     align-self: stretch;
@@ -62,7 +62,7 @@
     background-color: #E1C86D;
 }
 
-.component-container-chooselecture > button {
+.component-container-history > button {
     justify-content: center;
     align-items: center;
     white-space: nowrap;

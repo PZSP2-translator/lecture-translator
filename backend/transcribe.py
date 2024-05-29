@@ -1,4 +1,6 @@
 import whisper as W
+
+
 def get_model():
     return W.load_model("base")
 

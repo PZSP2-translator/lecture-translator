@@ -13,8 +13,6 @@ const Header = () => {
     navigate("/")
   };
 
-
-
   return (
     <header className='container'>
         <div className="navbar">
@@ -26,7 +24,7 @@ const Header = () => {
               <div className="link">Notes</div>
             </div>
           </Link>
-          <Link to="/question" className='no-underscore'>
+          <Link to="/question/-1" className='no-underscore'>
             <div className="frame">
               <div className="link">Questions</div>
             </div>
@@ -41,11 +39,6 @@ const Header = () => {
             </>
           )
           }
-          <Link to="/codes" className='no-underscore'>
-            <div className="frame">
-              <div className="link">Codes</div>
-            </div>
-          </Link>
           {!user && (
             <>
               <Link to="/login" className='no-underscore'>

@@ -2,6 +2,8 @@ import React from "react";
 import "./Register.css";
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import {ip} from "../Resources.js";
+
 
 
 function Register() {
@@ -15,7 +17,7 @@ function Register() {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch("http://localhost:5000/register", {
+      const response = await fetch(`${ip}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

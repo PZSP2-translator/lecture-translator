@@ -10,7 +10,7 @@ CREATE TABLE lectures (
     lecture_date        DATE NOT NULL,
     lecturer_code       VARCHAR2(6 CHAR) NOT NULL UNIQUE,
     student_code        VARCHAR2(6 CHAR) NOT NULL UNIQUE,
-    presentation_link   VARCHAR2(200 CHAR)
+    presentation_link   VARCHAR2(1000 CHAR)
 );
 
 ALTER TABLE lectures ADD CONSTRAINT lecture_pk PRIMARY KEY ( lecture_id );

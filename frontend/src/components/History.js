@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import "./ChooseLecture.css";
+import { useUser } from "./UserContext";
+import "./History.css";
+import { useNavigate } from 'react-router-dom';
+import {ip} from "../Resources.js";
 
-const ChooseLecture = () => {
+const History = () => {
     const [selected, setSelected] = useState(null);
     const [lectures, setLectures] = useState([]);
     const [error, setError] = useState(null);
-    
-    const userId = 1; // Replace with actual user ID
+    const navigate = useNavigate();
+    const { user } = useUser();
 
     useEffect(() => {
         const fetchLectures = async () => {
             try {
-                const response = await fetch("http://localhost:5000/userLectures", {
+                const response = await fetch(`${ip}/userLectures`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ user_id: userId })
+                    body: JSON.stringify({ user_id: user.id })
                 });
 
                 if (!response.ok) {
@@ -38,7 +41,7 @@ const ChooseLecture = () => {
         };
 
         fetchLectures();
-    }, [userId]);
+    }, [user.id]);
 
     const handleSelect = (index) => {
         setSelected(index);
@@ -47,14 +50,15 @@ const ChooseLecture = () => {
     const handleConfirm = () => {
         if (selected !== null) {
             console.log("Selected lecture:", lectures[selected]);
+            navigate(`/notes/${lectures[selected]['lecture_id']}`)
         } else {
             alert("Please select a lecture");
         }
     };
 
     return (
-        <div className="component-container-chooselecture">
-            <div className="component-title-chooselecture">Choose lecture</div>
+        <div className="component-container-history">
+            <div className="component-title-history">Choose lecture</div>
             {error && <div className="error-message">{error}</div>}
             <ul className="lecture-list">
                 {lectures.map((lecture, index) => (
@@ -62,8 +66,10 @@ const ChooseLecture = () => {
                         className={`lecture-item ${selected === index ? 'selected' : ''}`}
                         onClick={() => handleSelect(index)}
                     >
-                        {lecture.title} - {lecture.date} {/* Title and Date */}
-                        <span className="lecture-code">{lecture.user_type}</span> {/* User Type */}
+                        {lecture.title} - {lecture.date.substring(0,10)} {/* Title and Date */}
+                        <span className="lecture-code">
+                        {lecture.user_type === 'S' ? 'student' : lecture.user_type === 'L' ? 'lecturer' : 'unknown'}
+                        </span> {/* User Type */}
                     </li>
                 ))}
             </ul>
@@ -74,7 +80,7 @@ const ChooseLecture = () => {
     );
 };
 
-export default ChooseLecture;
+export default History;
 
 
 
