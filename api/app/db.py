@@ -9,6 +9,7 @@ def load_password_from_file(path):
 
 
 pw = load_password_from_file("app/password")
+# pw = load_password_from_file("api/app/password")
 
 
 def load_sql_file(filename):
@@ -27,14 +28,18 @@ def load_sql_file(filename):
 #             # cursor.executescript(proc_func)
 #         connection.commit()
 
+
 def get_lectures(user_id):
     rows = []
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
-            for row in cursor.execute("""
+            for row in cursor.execute(
+                """
 select p.lecture_id, l.title, l.lecture_date, p.user_type
 from participants p join lectures l on (l.lecture_id = p.lecture_id)
-where user_id=:1""", [user_id]):
+where user_id=:1""",
+                [user_id],
+            ):
                 rows.append(row)
     return rows
 
@@ -48,7 +53,9 @@ def create_lecture(title, lecturer_id=None):
             lecture_id = lecture_id.getvalue()
             if lecturer_id:
                 already_joined = cursor.var(int)
-                cursor.callproc("join_lecture", [lecture_id, lecturer_id, "L", already_joined])
+                cursor.callproc(
+                    "join_lecture", [lecture_id, lecturer_id, "L", already_joined]
+                )
             return lecturer_code.getvalue(), lecture_id
 
 
@@ -64,8 +71,7 @@ def create_user(first_name, last_name, mail, pass_hash):
         with connection.cursor() as cursor:
             is_succesful = cursor.var(int)
             cursor.callproc(
-                "create_user", [first_name, last_name, mail, pass_hash,
-                                is_succesful]
+                "create_user", [first_name, last_name, mail, pass_hash, is_succesful]
             )
             return is_succesful.getvalue()
 
@@ -82,8 +88,7 @@ def join_lecture(lecture_code, user_id=None, user_type="S"):
                 return result, 0
             already_joined = cursor.var(int)
             cursor.callproc(
-                "join_lecture", [lecture_code, user_id, user_type,
-                                 already_joined]
+                "join_lecture", [lecture_code, user_id, user_type, already_joined]
             )
             return result, already_joined.getvalue()
 
@@ -102,12 +107,15 @@ def get_transcription(lecture_id, last=False):
                 cursor.callfunc("get_transcription", str, [lecture_id, text])
                 return text.getvalue()
             else:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT text FROM transcriptions
                     WHERE lecture_id = :1
                     ORDER BY time DESC
                     FETCH FIRST 1 ROWS ONLY
-                """, [lecture_id])
+                """,
+                    [lecture_id],
+                )
                 result = cursor.fetchone()
                 if result:
                     return result[0].read()
@@ -129,10 +137,13 @@ def change_password(user_id, pass_hash):
 def get_lecture_id(lecture_code):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
-            for row in cursor.execute("""
+            for row in cursor.execute(
+                """
 select lecture_id
 from lectures
-where student_code=:1""", [lecture_code]):
+where student_code=:1""",
+                [lecture_code],
+            ):
                 return row
 
 
@@ -145,10 +156,13 @@ def add_note(user_id, lecture_id, text):
 def get_note(user_id, lecture_id):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
-            for row in cursor.execute("""
+            for row in cursor.execute(
+                """
 select note
 from participants
-where user_id=:1 and lecture_id:=2""", [user_id, lecture_id]):
+where user_id=:1 and lecture_id:=2""",
+                [user_id, lecture_id],
+            ):
 
                 return row
 
@@ -156,8 +170,11 @@ where user_id=:1 and lecture_id:=2""", [user_id, lecture_id]):
 def get_lecture_metadata(lecture_id):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(
+                """
 select lecture_id, title, lecture_date, student_code, presentation_link
 from lectures
-where lecture_id=:1""", [lecture_id])
+where lecture_id=:1""",
+                [lecture_id],
+            )
             return cursor.fetchone()
