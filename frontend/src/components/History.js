@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from "./UserContext";
-import "./ChooseLecture.css";
+import "./History.css";
 import { useNavigate  } from 'react-router-dom';
 
-const ChooseLecture = () => {
+const History = () => {
     const [selected, setSelected] = useState(null);
     const [lectures, setLectures] = useState([]);
     const [error, setError] = useState(null);
@@ -56,8 +56,8 @@ const ChooseLecture = () => {
     };
 
     return (
-        <div className="component-container-chooselecture">
-            <div className="component-title-chooselecture">Choose lecture</div>
+        <div className="component-container-history">
+            <div className="component-title-history">Choose lecture</div>
             {error && <div className="error-message">{error}</div>}
             <ul className="lecture-list">
                 {lectures.map((lecture, index) => (
@@ -65,7 +65,7 @@ const ChooseLecture = () => {
                         className={`lecture-item ${selected === index ? 'selected' : ''}`}
                         onClick={() => handleSelect(index)}
                     >
-                        {lecture.title} - {lecture.date} {/* Title and Date */}
+                        {lecture.title} - {lecture.date.substring(0,11)} {/* Title and Date */}
                         <span className="lecture-code">
                         {lecture.user_type === 'S' ? 'student' : lecture.user_type === 'L' ? 'lecturer' : 'unknown'}
                         </span> {/* User Type */}
@@ -79,7 +79,7 @@ const ChooseLecture = () => {
     );
 };
 
-export default ChooseLecture;
+export default History;
 
 
 

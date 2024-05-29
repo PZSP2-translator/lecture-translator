@@ -2,7 +2,7 @@ import HomePage from "./components/Homepage";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import ChangePassword from "./components/Password";
-import ChooseLecture from "./components/ChooseLecture";
+import History from "./components/History";
 import LectureView from "./components/LectureView";
 import Question from "./components/Question";
 
@@ -25,10 +25,10 @@ const AppRoutes = [
     },
     {
     path: '/history',
-    element: <ChooseLecture />
+    element: <History />
     },
     {
-    path: '/notes/:code',
+    path: '/notes/:id',
     element: <LectureView />
     },
     {
