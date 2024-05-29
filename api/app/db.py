@@ -9,12 +9,11 @@ def load_password_from_file(path):
 
 
 pw = load_password_from_file("app/password")
-# pw = load_password_from_file("api/app/password")
 
 
-def load_sql_file(filename):
-    with open(filename, "r") as file:
-        return file.read()
+# def load_sql_file(filename):
+#     with open(filename, "r") as file:
+#         return file.read()
 
 
 # def setup_database():
@@ -30,6 +29,15 @@ def load_sql_file(filename):
 
 
 def get_lectures(user_id):
+    """
+    Selects lectures from given user from database.
+
+    Parameters:
+    - user_id (int): ID of user.
+
+    Returns:
+    - List: A List containing the lectures as lists.
+    """
     rows = []
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
@@ -45,6 +53,17 @@ where user_id=:1""",
 
 
 def create_lecture(title, lecturer_id=None):
+    """
+    Create new lecture using procedure in PL/SQL.
+
+    Parameters:
+    - title (str): Title of the lecture.
+    - user_id (int, optional): ID of user creating lecture. Defaults to None.
+
+    Returns:
+    - str: Code for lecturer.
+    - int: ID of created lecture.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             lecturer_code = cursor.var(str)
@@ -60,6 +79,16 @@ def create_lecture(title, lecturer_id=None):
 
 
 def login(mail, pass_hash):
+    """
+    Authenticate the user using procedure in PL/SQL.
+
+    Parameters:
+    - mail (str): Mail of the user.
+    - pass_hash (str): Hash of password
+
+    Returns:
+    - int: ID of logged user.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             user_id = cursor.callfunc("login", int, [mail, pass_hash])
@@ -67,6 +96,18 @@ def login(mail, pass_hash):
 
 
 def create_user(first_name, last_name, mail, pass_hash):
+    """
+    Create new user using procedure in PL/SQL.
+
+    Parameters:
+    - first_name (str): First name of the user.
+    - last_name (str): Last name of the user.
+    - mail (str): Mail of the user.
+    - pass_hash (str): Hash of password
+
+    Returns:
+    - int: 0 if succesfull, 1 if email already existed in database.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             is_succesful = cursor.var(int)
@@ -77,6 +118,18 @@ def create_user(first_name, last_name, mail, pass_hash):
 
 
 def join_lecture(lecture_code, user_id=None, user_type="S"):
+    """
+    Signs user to a lecture using procedure in PL/SQL.
+
+    Parameters:
+    - lecture_code (str): Code to join to lecture.
+    - user_id (str, optional): ID of user. Defaults to None.
+    - user_type (str): 'S' - student, 'L' - lecturer
+
+    Returns:
+    - int: ID of joined lecture.
+    - int: -1 - lecture doesn't exist, 0 - joined, 1 - already joined earlier
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             query = """select lecture_id from lectures where student_code=:1"""
@@ -94,12 +147,29 @@ def join_lecture(lecture_code, user_id=None, user_type="S"):
 
 
 def add_transcription(lecture_id, text):
+    """
+    Adds portion of transcriptions using procedure in PL/SQL.
+
+    Parameters:
+    - lecture_id (int): ID of lecture
+    - text (str): transcription.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             cursor.callproc("add_transcription", [lecture_id, text])
 
 
 def get_transcription(lecture_id, last=False):
+    """
+    Gets transcription of given id using function in PL/SQL.
+
+    Parameters:
+    - lecture_id (int): ID of lecture.
+    - last (bool, optional): Flag indicating whether to return the last portion of transcription. Defaults to False.
+
+    Returns:
+    - str: transcription
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             if not last:
@@ -123,37 +193,56 @@ def get_transcription(lecture_id, last=False):
 
 
 def add_presenation(lecture_id, link):
+    """
+    Add presentation to lecture using procedure in PL/SQL.
+
+    Parameters:
+    - lecture_id (int): ID of lecture.
+    - link (str): link to presentation.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             cursor.callproc("add_presentation", [lecture_id, link])
 
 
 def change_password(user_id, pass_hash):
+    """
+    Change password of the user using procedure in PL/SQL.
+
+    Parameters:
+    - user_id (int): ID of user.
+    - pass_hash (str): New password.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             cursor.callproc("change_password", [user_id, pass_hash])
 
 
-def get_lecture_id(lecture_code):
-    with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
-        with connection.cursor() as cursor:
-            for row in cursor.execute(
-                """
-select lecture_id
-from lectures
-where student_code=:1""",
-                [lecture_code],
-            ):
-                return row
-
-
 def add_note(user_id, lecture_id, text):
+    """
+    Add note of the user using procedure in PL/SQL.
+
+    Parameters:
+    - user_id (int): ID of user.
+    - lecture_id (int): ID of lecture.
+    - text (str): Note in html format.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             cursor.callproc("add_note", [user_id, lecture_id, text])
 
 
 def get_note(user_id, lecture_id):
+    """
+    Gets note of given user and lecture.
+
+    Parameters:
+    - user_id (int): ID of user.
+    - lecture_id (int): ID of lecture.
+
+    Returns:
+    - str: Note in html format.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             for row in cursor.execute(
@@ -168,6 +257,15 @@ where user_id=:1 and lecture_id:=2""",
 
 
 def get_lecture_metadata(lecture_id):
+    """
+    Gets metadata of lecture.
+
+    Parameters:
+    - lecture_id (int): ID of lecture.
+
+    Returns:
+    - List: list with lecture_id, title, lecture_date, student_code, presentation_link.
+    """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
             cursor.execute(
