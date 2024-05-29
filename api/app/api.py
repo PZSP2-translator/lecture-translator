@@ -3,60 +3,24 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .db import login, create_user, change_password, \
     add_presenation, get_transcription, add_transcription, \
-    join_lecture, create_lecture, get_lectures
-from dataclasses import dataclass
+    join_lecture, create_lecture, get_lectures, get_lecture_metadata
 from pydantic import BaseModel
-import random
-import datetime
 import json
-
-
-class Course(BaseModel):
-    course_id: int
-    name: str
-    code: int
-    date: datetime.datetime
-
-
-class JoinCourseRequest(BaseModel):
-    code: str
-
-
-class UserLecturesRequest(BaseModel):
-    user_id: int
 
 
 app = FastAPI()
 
-# Initialize an empty list to store courses
-courses = []
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8081", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
 
 
-@app.post("/createCourse")
-async def create_course(course: Course):
-    # TODO add the course to your database
-    course.course_id = len(courses) + 1
-    existing_codes = {course['code'] for course in courses}
-    code = random.randint(100000, 999999)
-    while code in existing_codes:
-        code = random.randint(100000, 999999)
-    course.code = code
-    course.date = datetime.datetime.now().strftime('%d.%m.%Y')
-    courses.append(course.dict())
-    return course.code
-    # return courses
-
-
-@app.post("/joinCourse")
-async def get_courses(request: JoinCourseRequest):
-    # Return the course with the given code
-    # if len(request.code) == 7:
-    for course in courses:
-        if course["code"] == int(request.code):
-            return course
-            # If no course was found, return an empty dictionary
-    return {}
-
+class UserLecturesRequest(BaseModel):
+    user_id: int
 
 @app.post("/userLectures")
 async def user_lectures(request: UserLecturesRequest):
@@ -73,63 +37,43 @@ async def user_lectures(request: UserLecturesRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:8081", "http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["*"],
-)
-
-l = []
-
-# @app.get("/courses")
-# async def root():
-#     return [Course(*course) for course in get_courses()]
-
-
 class Transcription(BaseModel):
     text: str
 
 
-@app.post("/")
-def main(data: Transcription):
-    l.append(data)
-    return data
+@app.get("/transcription/{id}")
+def transcription(id: int, last: bool = False):
+    return get_transcription(id, last)
 
 
-@app.get("/")
-async def root():
-    if len(l) == 0:
-        return {"text": ""}
-    return l[-1]
+@app.post("/transcription/{id}")
+def add_transcription_req(id: int, data: Transcription):
+    return add_transcription(id, data.text)
 
 
 class AskQuestionRequest(BaseModel):
     question: str
 
 
-questions = set()
+questions = {}
 
 
-@app.post("/questions") # TODO make it so it works with multiple lectures at once
-async def add_question(request: AskQuestionRequest):
-    questions.add(request.question)
-    print(questions)
-    questions.remove("ajaj")
-    print(questions)
+@app.post("/questions/{id}")
+async def add_question(id: int, request: AskQuestionRequest):
+    if id not in questions:
+        questions[str(id)] = []
+    questions[str(id)].append(request.question)
 
 
-@app.delete("/question")
-async def del_question(request: AskQuestionRequest):
-    questions.remove(request.question)
+@app.delete("/question/{id}")
+async def del_question(id: int, request: AskQuestionRequest):
+    questions[str(id)].remove(request.question)
 
 
-@app.get("/questions") # TODO implement this as Server Sent Event (SSE)
-async def get_question():
-    questions_list = list(questions)
-    questions_json = json.dumps(questions_list)
-    print(questions_json)
+@app.get("/questions/{id}")  # TODO implement this as Server Sent Event (SSE)
+async def get_question(id: int):
+    questions_list = list(questions[str(id)])
+    # questions_json = json.dumps(questions_list)
     return questions_list
 
 
@@ -180,7 +124,6 @@ class JoinLectureRequest(BaseModel):
     user_type: str = "S"
 
 
-# dla użytkownika zalogowanego, tylko dodaje do listy uczestników
 @app.post("/join_lecture")
 def join_lecture_req(join_lecture_request: JoinLectureRequest):
     lecture_id, is_succesful = join_lecture(join_lecture_request.lecture_code,
@@ -198,7 +141,6 @@ class CreateLectureRequest(BaseModel):
     lecturer_id: int = None
 
 
-# to ma zwracać kod wykładowcy i studenta chyba?
 @app.post("/create_lecture")
 def create_lecture_req(create_lecture_request: CreateLectureRequest):
     lecturer_code, lecture_id = create_lecture(create_lecture_request.title,
@@ -215,3 +157,8 @@ class PresentationRequest(BaseModel):
 def add_presentation_req(presentation_request: PresentationRequest):
     add_presenation(presentation_request.lecture_id,
                     presentation_request.link)
+
+
+@app.get("/lecture/{id}")
+def get_lecture_data(id: int):
+    return get_lecture_metadata(id)

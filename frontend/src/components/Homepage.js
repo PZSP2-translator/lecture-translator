@@ -2,7 +2,6 @@ import React from 'react';
 import "./Homepage.css";
 import { useState } from 'react';
 import { useUser } from "./UserContext";
-import { port, craftTitle, getMetaData } from '../Resources';
 import { useNavigate  } from 'react-router-dom';
 
 const HomePage = () => {
@@ -10,13 +9,6 @@ const HomePage = () => {
     const [code, setCode] = useState("");
     const { user } = useUser();
     const navigate = useNavigate();
-
-        const course = {
-            course_id: 0,
-            name: title,
-            code: 0,
-            date: 0
-        };
 
     const handleCreate = async () => {
         try {
@@ -47,23 +39,6 @@ const HomePage = () => {
           }
         };
 
-    // const handleJoin = async () => {
-    //     try {
-    //         const response = await fetch("http://localhost:5000/join_lecture", {
-    //         body: JSON.stringify(course),
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //     navigator.clipboard.writeText(data)
-    //     .then(() => alert(`Course code for ${title} is \n ${data} \n /it was copied to your clipboard/`))
-    //     .catch((error) => console.error('Error:', error));
-    //     return data;
-    //     })
-    //     catch (error) {
-    //                 console.error("Error during joining in:", error);
-    //                 }
-    //   };
-
     const handleJoin = async () => {
         try {
             const requestBody = { lecture_code: code };
@@ -90,53 +65,6 @@ const HomePage = () => {
           console.error("Error during joining lecture:", error);
           }
         };
-
-
-    // const handleJoin = async () => {
-    //     const requestBody = { title: code };
-
-    //         if (user) {
-    //             requestBody.user_id = user.id;
-    //         }
-    //     fetch('http://localhost:5000/join_lecture', {
-    //         method: "POST",
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             "code": code
-    //         }),
-    //     })
-    //     const data = await response.json();
-    //       console.log(title)
-
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-    //         window.location.href = `/notes/${data.code}`;
-    //     })
-    //     .catch((error) => console.error('Error:', error));
-    // };
-
-
-
-// const handleJoin = () => {
-//     fetch('http://localhost:5000/joinCourse', {
-//         method: "POST",
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//             "code": code
-//         }),
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log(data);
-//         window.location.href = `/notes/${data.code}`;
-//     })
-//     .catch((error) => console.error('Error:', error));
-// };
 
     return (
         <div className="divider-homepage">

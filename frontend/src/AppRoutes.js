@@ -42,7 +42,7 @@ const AppRoutes = [
     element: <LectureView />
     },
     {
-    path: '/question',
+    path: '/question/:id',
     element: <Question />
     },
 

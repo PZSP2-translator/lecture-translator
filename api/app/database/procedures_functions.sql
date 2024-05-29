@@ -153,7 +153,6 @@ BEGIN
 END;
 /
 
-
 -- procedura do zmiany hasła
 
 CREATE OR REPLACE PROCEDURE change_password(v_user_id IN INTEGER, v_new_hash_pass IN VARCHAR2)

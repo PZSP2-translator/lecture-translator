@@ -3,6 +3,7 @@ import oracledb
 un = "PZSP06"
 cs = "ora2.ia.pw.edu.pl/iais"
 
+
 def load_password_from_file(path):
     return open(path, "r").read()
 
@@ -93,12 +94,24 @@ def add_transcription(lecture_id, text):
             cursor.callproc("add_transcription", [lecture_id, text])
 
 
-def get_transcription(lecture_id):
+def get_transcription(lecture_id, last=False):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
-            text = cursor.var(str)
-            cursor.callfunc("get_transcription", str, [lecture_id, text])
-            return text.getvalue()
+            if not last:
+                text = cursor.var(str)
+                cursor.callfunc("get_transcription", str, [lecture_id, text])
+                return text.getvalue()
+            else:
+                cursor.execute("""
+                    SELECT text FROM transcriptions
+                    WHERE lecture_id = :1
+                    ORDER BY time DESC
+                    FETCH FIRST 1 ROWS ONLY
+                """, [lecture_id])
+                result = cursor.fetchone()
+                if result:
+                    return result[0].read()
+                return None
 
 
 def add_presenation(lecture_id, link):
@@ -130,4 +143,15 @@ def get_note(user_id, lecture_id):
 select note
 from participants
 where user_id=:1 and lecture_id:=2""", [user_id, lecture_id]):
+
                 return row
+
+
+def get_lecture_metadata(lecture_id):
+    with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+select lecture_id, title, lecture_date, student_code, presentation_link
+from lectures
+where lecture_id=:1""", [lecture_id])
+            return cursor.fetchone()
