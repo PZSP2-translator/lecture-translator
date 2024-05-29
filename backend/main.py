@@ -13,6 +13,11 @@ from translate import translate_pl_to_en
 from globals import FREQ, BLOCK_LENGTH_SEC
 
 
+
+from pydub import silence as S
+
+import globals as G
+
 class LectureTranscriber:
     def __init__(self, lecture_code, ip_address):
         self.lecture_code = lecture_code
@@ -31,7 +36,7 @@ class LectureTranscriber:
 
             if not silence_intervals:
                 return len(indata)
-            
+
             last_silence_end = silence_intervals[-1][1]
             last_silence_start = silence_intervals[-1][0]
             cutting_point = (last_silence_end + last_silence_start) // 2

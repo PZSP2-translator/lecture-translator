@@ -28,7 +28,7 @@ const LectureView = ({ notes, setNotes }) => {
             navigate(`/notes/${lastLectureID}`);
             setLectureID(lastLectureID);
         }
-        
+
         (async () => {
             if (lectureID === "-1") {
                 return;
@@ -42,7 +42,7 @@ const LectureView = ({ notes, setNotes }) => {
     useEffect(() => {
         const fetchData = async()=>{
             try{
-            const responce = await fetch(`http://localhost:${port}/`);
+            const responce = await fetch(ip + `/`);
             if (!responce.ok){
                 throw new Error("XD" + responce.statusText);
             }
@@ -133,7 +133,7 @@ const LectureView = ({ notes, setNotes }) => {
 
     const handleQuestion = () => {
         console.log("MY CHANGES" + question);
-        fetch(`http://localhost:${port}/questions`, {
+        fetch(ip + `/questions`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ const LectureView = ({ notes, setNotes }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://127.0.0.1:5000/");
+                const response = await fetch(ip + "/");
                 if (!response.ok) {
                     throw new Error("XD" + response.statusText);
                 }
@@ -186,7 +186,7 @@ const LectureView = ({ notes, setNotes }) => {
     useEffect(() => {
         const fetchLecture = async () => {
             try {
-                const response = await fetch(`http://localhost:${port}/lecture/${lectureID}`);
+                const response = await fetch(ip + `/lecture/${lectureID}`);
                 if (!response.ok) {
                     throw new Error("XD" + response.statusText);
                 }
