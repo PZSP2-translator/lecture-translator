@@ -127,6 +127,7 @@ END;
 /
 
 -- procedura do dodania transkrypcji
+-- na wejście: id wykładu, tekst transkrypcji
 
 CREATE SEQUENCE transcription_id_seq START WITH 1;
 
@@ -142,6 +143,7 @@ END;
 /
 
 -- procedura dodająca prezentację do wykładu
+-- na wejście: id wykładu, link prezentacji
 
 CREATE OR REPLACE PROCEDURE add_presentation(v_lecture_id IN INTEGER, v_presentation IN VARCHAR2)
 AS
@@ -154,6 +156,7 @@ END;
 /
 
 -- procedura do zmiany hasła
+-- na wejście: id użytkownika, nowe hasło
 
 CREATE OR REPLACE PROCEDURE change_password(v_user_id IN INTEGER, v_new_hash_pass IN VARCHAR2)
 AS
@@ -164,6 +167,9 @@ BEGIN
     COMMIT;
 END;
 /
+
+-- procedura do dodawania notatek
+-- na wejście: id użytkownika, id wykładu, notatka
 
 CREATE OR REPLACE PROCEDURE add_note(v_user_id IN INTEGER, v_lecture_id IN INTEGER, v_text IN CLOB)
 AS
