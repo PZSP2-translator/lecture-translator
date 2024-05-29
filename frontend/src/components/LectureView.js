@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import "./LectureView.css";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -14,31 +14,32 @@ import { extractDate } from './utils';
 const LectureView = ({ notes, setNotes }) => {
     const quillRef = useRef(null);
     const [localNotes, setLocalNotes] = useState(notes);
-
-
-    const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
     const [title, setTitle] = useState("Lecture");
     const [question, setQuestion] = useState("");
     const [transcription, setTranscription] = useState("");
     const [link, setLink] = useState("");
+    const [lectureID, setLectureID] = useState(useParams().id);
+    const [lastLectureID, setLastLectureID] = useState(sessionStorage.getItem("lastLectureID"))
 
-    console.log(lastCode);
-
-
-
-    let { code } = useParams();
-    if (code === "-1") {
-        code = lastCode;
-    }
+    const navigate = useNavigate();
 
     useEffect(() => {
-        sessionStorage.setItem("lastCode", code);
+        if (lectureID === "-1") {
+            navigate(`/notes/${lastLectureID}`);
+            setLectureID(lastLectureID);
+        }
+        
+        (async () => {
+            if (lectureID === "-1") {
+                return;
+            }
+            const result = await craftTitle(lectureID);
+            sessionStorage.setItem("lastLectureID", lectureID);
+            setTitle(result);
+        })();
+    }, [lectureID, lastLectureID, navigate]);
 
-        // (async () => {
-        //     const result = await craftTitle(code);
-        //     setTitle(result);
-        // })();
-
+    useEffect(() => {
         const fetchData = async()=>{
             try{
             const responce = await fetch(`http://localhost:${port}/`);
@@ -185,14 +186,12 @@ const LectureView = ({ notes, setNotes }) => {
     useEffect(() => {
         const fetchLecture = async () => {
             try {
-                console.log({code})
-                const response = await fetch(`http://localhost:${port}/lecture/${code}`);
+                const response = await fetch(`http://localhost:${port}/lecture/${lectureID}`);
                 if (!response.ok) {
                     throw new Error("XD" + response.statusText);
                 }
                 const data = await response.json();
-                setTitle(`${data[1]}-${extractDate(data[2])}`);
-                setLink(data[4])
+                // setLink(data[4])
             } catch (error) {
                 console.error("ERROR", error);
             }

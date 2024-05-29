@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./Question.css";
 import { port, craftTitle, getMetaData} from '../Resources';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 
 function getSrc(html) {
@@ -10,16 +10,15 @@ function getSrc(html) {
 }
 
 const Question = () => {
-    let { id } = useParams();
-//    const [selected, setSelected] = useState(null);
     const [title, setTitle] = useState("Lecture");
-    // const [lastCode, setLastCode] = useState(sessionStorage.getItem("lastCode"))
     const [link, setLink] = useState("");
-    const [questions, setQuestions] = useState([])
+    const [questions, setQuestions] = useState([]);
+    const [lastLectureID, setLastLectureID] = useState(sessionStorage.getItem("lastLectureID"));
+    const [lectureID, setLectureID] = useState(useParams().id);
 
     const handleAnswer = (index) => { // TODO, usunąć selected? nie aktualizuje się na czas!!!
 //        setSelected(index);
-        fetch(`http://localhost:${port}/question/${id}`, {
+        fetch(`http://localhost:${port}/question/${lectureID}`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',
@@ -42,7 +41,7 @@ const Question = () => {
     const handleLink = async () => {
         try {
             const requestBody = { link: getSrc(link),
-                lecture_id: id
+                lecture_id: lectureID
              }
         const response = await fetch("http://localhost:5000/presentation", {
             method: "POST",
@@ -63,46 +62,56 @@ const Question = () => {
           }
     };
 
-    // useEffect(() => {
-    //     (async () => {
-    //         const result = await craftTitle(lastCode);
-    //         setTitle(result);
-    //     })();
-    // }, [lastCode]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (lectureID === "-1") {
+            navigate(`/question/${lastLectureID}`);
+            setLectureID(lastLectureID);
+        }
+        
+        (async () => {
+            if (lectureID === "-1") {
+                return;
+            }
+            const result = await craftTitle(lectureID);
+            sessionStorage.setItem("lastLectureID", lectureID);
+            setTitle(result);
+        })();
+    }, [lectureID, lastLectureID, navigate]);
 
     useEffect(() => {
         const fetchData = async()=>{
             try{
-                const responce = await fetch(`http://localhost:${port}/questions/${id}`);
+                const responce = await fetch(`http://localhost:${port}/questions/${lectureID}`);
                 if (!responce.ok){
                     throw new Error("XD" + responce.statusText);
                 }
                 const data = await responce.json();
                 setQuestions(data);
-                // console.log("Received data:", data);
             }
             catch (error){
                 console.error("ERROR", error);
             }
-            console.log(questions.length === 0)
-            console.log(questions.length)
+            // console.log(questions.length === 0)
+            // console.log(questions.length)
         };
 
-    // fetchData();
-    const intervalId = setInterval(fetchData, 1000);
+        // fetchData();
+        const intervalId = setInterval(fetchData, 1000);
 
-    return () => clearInterval(intervalId);
-}, []);
+        return () => clearInterval(intervalId);
+    }, []);
 
     useEffect(() => {
         const fetchLecture = async () => {
             try {
-                const response = await fetch(`http://localhost:${port}/lecture/${id}`);
+                const response = await fetch(`http://localhost:${port}/lecture/${lectureID}`);
                 if (!response.ok) {
                     throw new Error("XD" + response.statusText);
                 }
                 const data = await response.json();
-                setTitle(`${data[1]}-${data[2]}-${data[3]}`);
+                // setTitle(craftTitle(code));
             } catch (error) {
                 console.error("ERROR", error);
             }
