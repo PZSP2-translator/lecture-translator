@@ -136,6 +136,12 @@ where student_code=:1""", [lecture_code]):
                 return row
 
 
+def add_note(user_id, lecture_id, text):
+    with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
+        with connection.cursor() as cursor:
+            cursor.callproc("add_note", [user_id, lecture_id, text])
+
+
 def get_note(user_id, lecture_id):
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:

@@ -164,3 +164,13 @@ BEGIN
     COMMIT;
 END;
 /
+
+CREATE OR REPLACE PROCEDURE add_note(v_user_id IN INTEGER, v_lecture_id IN INTEGER, v_text IN CLOB)
+AS
+BEGIN
+    UPDATE PARTICIPANTS
+    SET note = v_text
+    WHERE user_id = v_user_id and lecture_id = v_lecture_id;
+    COMMIT;
+END;
+/

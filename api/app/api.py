@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .db import login, create_user, change_password, \
     add_presenation, get_transcription, add_transcription, \
-    join_lecture, create_lecture, get_lectures, get_lecture_metadata
+    join_lecture, create_lecture, get_lectures, \
+    get_lecture_metadata, add_note, get_note
 from pydantic import BaseModel
 import json
 
@@ -48,8 +49,11 @@ def transcription(id: int, last: bool = False):
 
 @app.post("/transcription/{id}")
 def add_transcription_req(id: int, data: Transcription):
-    return add_transcription(id, data.text)
+    add_transcription(id, data.text)
 
+
+##################################################################
+# TODO test this
 
 class AskQuestionRequest(BaseModel):
     question: str
@@ -72,10 +76,15 @@ async def del_question(id: int, request: AskQuestionRequest):
 
 @app.get("/questions/{id}")  # TODO implement this as Server Sent Event (SSE)
 async def get_question(id: int):
-    questions_list = list(questions[str(id)])
+    if str(id) in questions:
+        questions_list = list(questions[str(id)])
+    else:
+        questions_list = []
     # questions_json = json.dumps(questions_list)
     return questions_list
 
+
+#############################################################################
 
 class LoginRequest(BaseModel):
     mail: str
@@ -88,7 +97,6 @@ def authenticate_user_req(login_request: LoginRequest):
     if user_id != 0:
         return {"user_id": user_id}
     else:
-        # Obsłużyć po stronie przeglądarki
         raise HTTPException(status_code=401, detail="Invalid mail or password")
 
 
@@ -162,3 +170,24 @@ def add_presentation_req(presentation_request: PresentationRequest):
 @app.get("/lecture/{id}")
 def get_lecture_data(id: int):
     return get_lecture_metadata(id)
+
+# TODO Add in frontend
+
+
+class NoteRequest(BaseModel):
+    user_id: int
+    lecture_id: int
+
+
+@app.get("/note")
+def get_note_req(note_req: NoteRequest):
+    return get_note(note_req.user_id, note_req.lecture_id)
+
+
+class NoteRequestPost(NoteRequest):
+    text: str
+
+
+@app.post("/note")
+def save_note(note_req: NoteRequestPost):
+    add_note(note_req.user_id, note_req.lecture_id, note_req.text)
