@@ -13,8 +13,6 @@ const Header = () => {
     navigate("/")
   };
 
-
-
   return (
     <header className='container'>
         <div className="navbar">
@@ -41,11 +39,6 @@ const Header = () => {
             </>
           )
           }
-          <Link to="/codes" className='no-underscore'>
-            <div className="frame">
-              <div className="link">Codes</div>
-            </div>
-          </Link>
           {!user && (
             <>
               <Link to="/login" className='no-underscore'>
