@@ -6,10 +6,11 @@ from pydub import AudioSegment  # pip install pydub sudo apt install ffmpeg
 from pydub import silence as S
 
 import transcribe
-import globals as G
 import sender
+import globals as G
 import translate
 import numpy as np
+import time
 
 
 def choose_cutting_point(indata):
@@ -44,7 +45,7 @@ def transcribe_fragment(
         filename = tmpfile.name
         array_to_translate = np.concatenate((last_data_buffer, data), axis=0)
         write(filename, G.FREQ, array_to_translate)
-        result = model.transcribe(filename, language="pl")
+        result = model.transcribe(filename, language = "pl", fp16=False)
     return result["text"]
 
 
@@ -55,7 +56,7 @@ def callback(indata, frames, time, status):
     if text == None or text == "":
         return
     last_data_buffer = indata[cutting_frame:]
-    # text = translate.translate_pl_to_en(text)
+    text = translate.translate_pl_to_en(text)
     sender.send_text(text)
 
 
@@ -63,13 +64,11 @@ if __name__ == "__main__":
     model = transcribe.get_model()
     last_data_buffer = np.zeros([0, 1], dtype="float32")
 
-    with sd.InputStream(
-        device=1,
-        samplerate=G.FREQ,
-        blocksize=G.FREQ * G.BLOCK_LENGTH_SEC,
-        channels=1,
-        callback=callback,
-    ):
+    with sd.InputStream(device=1,
+                samplerate=G.FREQ, blocksize=G.FREQ * G.BLOCK_LENGTH_SEC,
+                channels=1, callback=callback):
+        time.sleep(5)
+        print("Microphone started")
         print("#" * 80)
         print("press Enter to quit")
         print("#" * 80)

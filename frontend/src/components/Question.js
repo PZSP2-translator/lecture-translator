@@ -89,7 +89,7 @@ const Question = () => {
         };
 
     // fetchData();
-    const intervalId = setInterval(fetchData, 10000);
+    const intervalId = setInterval(fetchData, 1000);
 
     return () => clearInterval(intervalId);
 }, []);

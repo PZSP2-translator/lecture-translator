@@ -58,6 +58,7 @@ class TranscriptionRequest(BaseModel):
     text: str
 
 
+
 @app.get("/transcription/{id}")
 def transcription(id: int, last: bool = False):
     return get_transcription(id, last)

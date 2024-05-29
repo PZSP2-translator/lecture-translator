@@ -23,6 +23,8 @@ następnie z poziomu folderu translator/frontend:
 
 ```npm install``` (przy pierwszym uruchomieniu)
 ```npm start```
+### starting backend
+the docker-compose assumes that your setup is windows => WSL2 = > docker containers, you will most likely have to edit the microphone container, if your setup is different
 
 następnie z poziomu folderu translator/:
 ```docker-compose up --build```
