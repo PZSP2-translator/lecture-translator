@@ -29,8 +29,8 @@ the docker-compose assumes that your setup is windows => WSL2 = > docker contain
 in your wsl2 terminal:
 navigate to the folder you want to clone to
 git clone https://github.com/PZSP2-translator/lecture-translator.git
-```docker-compose -f docker-compose-microphone.yml up --build```
-
+navigate to build-microphone
+```docker-compose up --build```
 
 docker exec -it PZSP06_microphone python3 microphone.py [lecture_number] [server_ip_address]
 
@@ -50,5 +50,6 @@ navigate to the folder you want to clone to
 git clone https://github.com/PZSP2-translator/lecture-translator.git
 navigate to frontend folder
 ```npm install``` (przy pierwszym uruchomieniu)
-navigate to main folder
-```docker-compose -f docker-compose-api-frontend.yml up --build```
+navigate to build-api-frontend folder
+chmod +x build.sh
+./build.sh

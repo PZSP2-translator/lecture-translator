@@ -2,28 +2,22 @@ services:
   api:
     tty: true
     build: ../api
-    volumes:
-      - ../api:/api
     command: python -u main.py
     container_name: PZSP06_api
     ports:
       - "5000:5000"
-    expose:
-     - 5000
     networks: [pzsp06_network]
 
   frontend:
     tty: true
     build: ../frontend
-    volumes:
-      - ../frontend:/frontend
     container_name: PZSP06_frontend
     ports:
       - "3000:3000"
-    expose:
-      - 3000
     command: ["npm", "start"]
     restart: always
+    environment:
+      - SERVER_IP=${SERVER_IP}  # Use the environment variable
     stdin_open: true
     networks: [pzsp06_network]
     links:
