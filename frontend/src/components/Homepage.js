@@ -3,6 +3,8 @@ import "./Homepage.css";
 import { useState } from 'react';
 import { useUser } from "./UserContext";
 import { useNavigate  } from 'react-router-dom';
+import {ip} from "../Resources.js";
+
 
 const HomePage = () => {
     const [title, setTitle] = useState("");
@@ -19,7 +21,7 @@ const HomePage = () => {
             if (user) {
                 requestBody.lecturer_id = user.id;
             }
-        const response = await fetch("http://localhost:5000/create_lecture", {
+        const response = await fetch(`${ip}/create_lecture`, {
             method: "POST",
             headers: {
             "Content-Type": "application/json"
@@ -48,7 +50,7 @@ const HomePage = () => {
                 if (user) {
                     requestBody.user_id = user.id;
                 }
-                const response = await fetch("http://localhost:5000/join_lecture", {
+                const response = await fetch(`${ip}/join_lecture`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

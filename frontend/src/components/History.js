@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from "./UserContext";
 import "./History.css";
-import { useNavigate  } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import {ip} from "../Resources.js";
 
 const History = () => {
     const [selected, setSelected] = useState(null);
@@ -13,7 +14,7 @@ const History = () => {
     useEffect(() => {
         const fetchLectures = async () => {
             try {
-                const response = await fetch("http://localhost:5000/userLectures", {
+                const response = await fetch(`${ip}/userLectures`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -65,7 +66,7 @@ const History = () => {
                         className={`lecture-item ${selected === index ? 'selected' : ''}`}
                         onClick={() => handleSelect(index)}
                     >
-                        {lecture.title} - {lecture.date.substring(0,11)} {/* Title and Date */}
+                        {lecture.title} - {lecture.date.substring(0,10)} {/* Title and Date */}
                         <span className="lecture-code">
                         {lecture.user_type === 'S' ? 'student' : lecture.user_type === 'L' ? 'lecturer' : 'unknown'}
                         </span> {/* User Type */}

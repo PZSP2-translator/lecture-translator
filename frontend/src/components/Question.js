@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import "./Question.css";
 import { port, craftTitle, getMetaData} from '../Resources';
 import { useNavigate, useParams } from 'react-router-dom';
+import {ip} from "../Resources.js";
+
 
 
 function getSrc(html) {
@@ -18,7 +20,7 @@ const Question = () => {
 
     const handleAnswer = (index) => { // TODO, usunąć selected? nie aktualizuje się na czas!!!
 //        setSelected(index);
-        fetch(`http://localhost:${port}/question/${lectureID}`, {
+        fetch(`${ip}/question/${lectureID}`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',
@@ -43,7 +45,7 @@ const Question = () => {
             const requestBody = { link: getSrc(link),
                 lecture_id: lectureID
              }
-        const response = await fetch("http://localhost:5000/presentation", {
+        const response = await fetch(`${ip}/presentation`, {
             method: "POST",
             headers: {
             "Content-Type": "application/json"
