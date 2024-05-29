@@ -31,7 +31,7 @@ const HomePage = () => {
 
           const data = await response.json();
           console.log(title)
-          navigator.clipboard.writeText(data).then(() => alert(`Code for ${title} is \n ${data.lecturer_code} \n /it was copied to your clipboard/`))
+          navigator.clipboard.writeText(data.lecturer_code).then(() => alert(`Code for ${title} is \n ${data.lecturer_code} \n /it was copied to your clipboard/`))
 
           navigate(`/question/${data.lecture_id}`)
           } catch (error) {
