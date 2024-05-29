@@ -1,5 +1,5 @@
 export let port = 5000;
-
+export let ip = "http://localhost:5000";
 export async function craftTitle(code) {
     let title = "Unknown Lecture";
     let date = "";
