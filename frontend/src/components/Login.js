@@ -3,6 +3,8 @@ import "./Login.css";
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useUser } from "./UserContext";
+import {ip} from "../Resources.js";
+
 
 
 function Login() {
@@ -19,7 +21,7 @@ function Login() {
   // Dodać hashowanie hasła jako funkcja w module utils
   const handleLogin = async () => {
   try {
-    const response = await fetch("http://localhost:5000/login", {
+    const response = await fetch(`${ip}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

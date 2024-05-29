@@ -24,7 +24,7 @@ const Header = () => {
               <div className="link">Notes</div>
             </div>
           </Link>
-          <Link to="/question" className='no-underscore'>
+          <Link to="/question/-1" className='no-underscore'>
             <div className="frame">
               <div className="link">Questions</div>
             </div>
