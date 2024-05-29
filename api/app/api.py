@@ -1,67 +1,37 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db import login, create_user, change_password, \
-    add_presenation, get_transcription, add_transcription, \
-    join_lecture, create_lecture, get_lectures
-from dataclasses import dataclass
+from .db import (
+    login,
+    create_user,
+    change_password,
+    add_presenation,
+    get_transcription,
+    add_transcription,
+    join_lecture,
+    create_lecture,
+    get_lectures,
+    get_lecture_metadata,
+    add_note,
+    get_note,
+)
 from pydantic import BaseModel
-import random
-import datetime
 import json
-
-@dataclass
-class Course(BaseModel):
-    course_id: int
-    name: str
-    code: int
-    date: datetime.datetime
-
-
-class JoinCourseRequest(BaseModel):
-    code: str
-
-class UserLecturesRequest(BaseModel):
-    user_id: int
 
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8081", "http://localhost:3000", "http://frontend:3000"],
+    allow_origins=["http://localhost:8081", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
-# Initialize an empty list to store courses
-courses = []
 
-@app.post("/createCourse")
-async def create_course(course: Course):
-    # TODO add the course to your database
-    course.course_id = len(courses) + 1
-    existing_codes = {course['code'] for course in courses}
-    code = random.randint(100000, 999999)
-    while code in existing_codes:
-        code = random.randint(100000, 999999)
-    course.code = code
-    course.date = datetime.datetime.now().strftime('%d.%m.%Y')
-    courses.append(course.dict())
-    return course.code
-    # return courses
-
-@app.post("/joinCourse")
-async def get_courses(request: JoinCourseRequest):
-    # Return the course with the given code
-    # if len(request.code) == 7:
-    for course in courses:
-        if course["code"] == int(request.code):
-            return course
-            # If no course was found, return an empty dictionary
-    return {}
-    return courses #TODO DELETE ME! # Return the list of courses
+class UserLecturesRequest(BaseModel):
+    user_id: int
 
 
 @app.post("/userLectures")
@@ -70,7 +40,12 @@ async def user_lectures(request: UserLecturesRequest):
         lectures = get_lectures(request.user_id)
         if lectures:
             return [
-                {"lecture_id": lec[0], "title": lec[1], "date": lec[2], "user_type": lec[3]} 
+                {
+                    "lecture_id": lec[0],
+                    "title": lec[1],
+                    "date": lec[2],
+                    "user_type": lec[3],
+                }
                 for lec in lectures
             ]
         else:
@@ -79,60 +54,55 @@ async def user_lectures(request: UserLecturesRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
-
-l = []
-
-# @app.get("/courses")
-# async def root():
-#     return [Course(*course) for course in get_courses()]
-
-
-class Transcription(BaseModel):
+class TranscriptionRequest(BaseModel):
     text: str
 
 
 
-
-@app.post("/")
-def main(data: Transcription):
-    l.append(data)
-    return data
+@app.get("/transcription/{id}")
+def transcription(id: int, last: bool = False):
+    return get_transcription(id, last)
 
 
-@app.get("/")
-async def root():
-    if len(l) == 0:
-        return {"text": ""}
-    return l[-1]
+@app.post("/transcription/{id}")
+def add_transcription_req(id: int, data: TranscriptionRequest):
+    add_transcription(id, data.text)
+
+
+##################################################################
+# TODO test this
 
 
 class AskQuestionRequest(BaseModel):
     question: str
 
-questions = set()
 
-@app.post("/questions") # TODO make it so it works with multiple lectures at once
-async def add_question(request: AskQuestionRequest):
-    questions.add(request.question)
-    print(questions)
-    questions.remove("ajaj")
-    print(questions)
+questions = {}
 
-@app.delete("/question")
-async def del_question(request: AskQuestionRequest):
-    questions.remove(request.question)
 
-@app.get("/questions") # TODO implement this as Server Sent Event (SSE)
-async def get_question():
-    questions_list = list(questions)
-    questions_json = json.dumps(questions_list)
-    print(questions_json)
+@app.post("/questions/{id}")
+async def add_question(id: int, request: AskQuestionRequest):
+    if id not in questions:
+        questions[str(id)] = []
+    questions[str(id)].append(request.question)
+
+
+@app.delete("/question/{id}")
+async def del_question(id: int, request: AskQuestionRequest):
+    questions[str(id)].remove(request.question)
+
+
+@app.get("/questions/{id}")  # TODO implement this as Server Sent Event (SSE)
+async def get_question(id: int):
+    if str(id) in questions:
+        questions_list = list(questions[str(id)])
+    else:
+        questions_list = []
+    # questions_json = json.dumps(questions_list)
     return questions_list
 
-# Docker
-# pip install fastapi==0.78.0 uvicorn==0.17.6
-# uvicorn main:app --reload
+
+#############################################################################
 
 
 class LoginRequest(BaseModel):
@@ -146,7 +116,6 @@ def authenticate_user_req(login_request: LoginRequest):
     if user_id != 0:
         return {"user_id": user_id}
     else:
-        # Obsłużyć po stronie przeglądarki
         raise HTTPException(status_code=401, detail="Invalid mail or password")
 
 
@@ -157,12 +126,16 @@ class RegisterRequest(LoginRequest):
 
 @app.post("/register")
 def register_user_req(register_request: RegisterRequest):
-    is_succesful = create_user(register_request.first_name,
-                               register_request.last_name,
-                               register_request.mail,
-                               register_request.pass_hash)
+    is_succesful = create_user(
+        register_request.first_name,
+        register_request.last_name,
+        register_request.mail,
+        register_request.pass_hash,
+    )
     if is_succesful == 1:
-        raise HTTPException(status_code=401, detail="Account with that mail already exist.")
+        raise HTTPException(
+            status_code=401, detail="Account with that mail already exist."
+        )
 
 
 class ChangePasswordRequest(BaseModel):
@@ -172,37 +145,42 @@ class ChangePasswordRequest(BaseModel):
 
 @app.post("/change_pass")
 def change_pass_req(password_request: ChangePasswordRequest):
-    change_password(password_request.user_id,
-                    password_request.password)
+    change_password(password_request.user_id, password_request.password)
 
 
 class JoinLectureRequest(BaseModel):
     user_id: int = None
     lecture_code: str
-    user_type: str
+    user_type: str = "S"
 
 
-# dla użytkownika zalogowanego, tylko dodaje do listy uczestników
 @app.post("/join_lecture")
 def join_lecture_req(join_lecture_request: JoinLectureRequest):
-    is_succesful = join_lecture(join_lecture_request.lecture_code,
-                                join_lecture_request.user_id,
-                                join_lecture_request.user_type)
+    lecture_id, is_succesful = join_lecture(
+        join_lecture_request.lecture_code,
+        join_lecture_request.user_id,
+        join_lecture_request.user_type,
+    )
     if is_succesful == 1:
         raise HTTPException(status_code=401, detail="User already joined the course.")
     elif is_succesful == -1:
-        raise HTTPException(status_code=401, detail="Lecture with given code doesn't exist.")
+        raise HTTPException(
+            status_code=401, detail="Lecture with given code doesn't exist."
+        )
+    return {"lecture_id": lecture_id}
 
 
 class CreateLectureRequest(BaseModel):
     title: str
+    lecturer_id: int = None
 
 
-# to ma zwracać kod wykładowcy i studenta chyba?
 @app.post("/create_lecture")
 def create_lecture_req(create_lecture_request: CreateLectureRequest):
-    lecture_id = create_lecture(create_lecture_request.title)
-    return {"lecture_id": lecture_id}
+    lecturer_code, lecture_id = create_lecture(
+        create_lecture_request.title, create_lecture_request.lecturer_id
+    )
+    return {"lecturer_code": lecturer_code, "lecture_id": lecture_id}
 
 
 class PresentationRequest(BaseModel):
@@ -212,5 +190,31 @@ class PresentationRequest(BaseModel):
 
 @app.post("/presentation")
 def add_presentation_req(presentation_request: PresentationRequest):
-    add_presenation(presentation_request.lecture_id,
-                    presentation_request.link)
+    add_presenation(presentation_request.lecture_id, presentation_request.link)
+
+
+@app.get("/lecture/{id}")
+def get_lecture_data(id: int):
+    return get_lecture_metadata(id)
+
+
+# TODO Add in frontend
+
+
+class NoteRequest(BaseModel):
+    user_id: int
+    lecture_id: int
+
+
+@app.get("/note")
+def get_note_req(note_req: NoteRequest):
+    return get_note(note_req.user_id, note_req.lecture_id)
+
+
+class NoteRequestPost(NoteRequest):
+    text: str
+
+
+@app.post("/note")
+def save_note(note_req: NoteRequestPost):
+    add_note(note_req.user_id, note_req.lecture_id, note_req.text)

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useUser } from "./UserContext";
 import "./ChooseLecture.css";
+import { useNavigate  } from 'react-router-dom';
 
 const ChooseLecture = () => {
     const [selected, setSelected] = useState(null);
     const [lectures, setLectures] = useState([]);
     const [error, setError] = useState(null);
-    
-    const userId = 1; // Replace with actual user ID
+    const navigate = useNavigate();
+    const { user } = useUser();
 
     useEffect(() => {
         const fetchLectures = async () => {
@@ -16,7 +18,7 @@ const ChooseLecture = () => {
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ user_id: userId })
+                    body: JSON.stringify({ user_id: user.id })
                 });
 
                 if (!response.ok) {
@@ -38,7 +40,7 @@ const ChooseLecture = () => {
         };
 
         fetchLectures();
-    }, [userId]);
+    }, [user.id]);
 
     const handleSelect = (index) => {
         setSelected(index);
@@ -47,6 +49,7 @@ const ChooseLecture = () => {
     const handleConfirm = () => {
         if (selected !== null) {
             console.log("Selected lecture:", lectures[selected]);
+            navigate(`/notes/${lectures[selected]['lecture_id']}`)
         } else {
             alert("Please select a lecture");
         }
@@ -63,7 +66,9 @@ const ChooseLecture = () => {
                         onClick={() => handleSelect(index)}
                     >
                         {lecture.title} - {lecture.date} {/* Title and Date */}
-                        <span className="lecture-code">{lecture.user_type}</span> {/* User Type */}
+                        <span className="lecture-code">
+                        {lecture.user_type === 'S' ? 'student' : lecture.user_type === 'L' ? 'lecturer' : 'unknown'}
+                        </span> {/* User Type */}
                     </li>
                 ))}
             </ul>

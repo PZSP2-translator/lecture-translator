@@ -4,17 +4,16 @@
 
 CREATE SEQUENCE lecture_id_seq START WITH 1;
 
-CREATE OR REPLACE PROCEDURE create_lecture(p_title IN VARCHAR2, p_lecture_id OUT INTEGER)
+CREATE OR REPLACE PROCEDURE create_lecture(p_title IN VARCHAR2, p_lecturer_code OUT VARCHAR2, p_lecture_id OUT INTEGER)
 AS
-    v_lecturer_code VARCHAR2(6 CHAR);
     v_student_code VARCHAR2(6 CHAR);
     v_code_exists INTEGER;
 BEGIN
     SELECT lecture_id_seq.NEXTVAL INTO p_lecture_id FROM DUAL;
 
     LOOP
-        v_lecturer_code := DBMS_RANDOM.STRING('A',6);
-        SELECT COUNT(*) INTO v_code_exists FROM lectures WHERE lecturer_code = v_lecturer_code;
+        p_lecturer_code := DBMS_RANDOM.STRING('A',6);
+        SELECT COUNT(*) INTO v_code_exists FROM lectures WHERE lecturer_code = p_lecturer_code;
         EXIT WHEN v_code_exists = 0;
     END LOOP;
 
@@ -25,10 +24,11 @@ BEGIN
     END LOOP;
 
     INSERT INTO lectures (lecture_id, title, lecture_date, lecturer_code, student_code)
-    VALUES (p_lecture_id, p_title, SYSTIMESTAMP, v_lecturer_code, v_student_code);
+    VALUES (p_lecture_id, p_title, SYSTIMESTAMP, p_lecturer_code, v_student_code);
     COMMIT;
 END;
 /
+
 
 -- funkcja do uwierzytelnienia użytkownika:
 -- na wejście mail i hasło
@@ -153,7 +153,6 @@ BEGIN
 END;
 /
 
-
 -- procedura do zmiany hasła
 
 CREATE OR REPLACE PROCEDURE change_password(v_user_id IN INTEGER, v_new_hash_pass IN VARCHAR2)
@@ -162,6 +161,16 @@ BEGIN
     UPDATE users
     SET password = v_new_hash_pass
     WHERE user_id = v_user_id;
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE add_note(v_user_id IN INTEGER, v_lecture_id IN INTEGER, v_text IN CLOB)
+AS
+BEGIN
+    UPDATE PARTICIPANTS
+    SET note = v_text
+    WHERE user_id = v_user_id and lecture_id = v_lecture_id;
     COMMIT;
 END;
 /
