@@ -8,6 +8,7 @@ import 'react-quill/dist/quill.snow.css';
 import ReactQuill from 'react-quill';
 import { port, craftTitle, getMetaData} from '../Resources';
 import { extractDate } from './utils';
+import {ip} from "../Resources.js";
 
 
 
@@ -42,7 +43,8 @@ const LectureView = ({ notes, setNotes }) => {
     useEffect(() => {
         const fetchData = async()=>{
             try{
-            const responce = await fetch(ip + `/`);
+            // const responce = await fetch(ip + "/transcription/" + lectureID);
+            const responce = await fetch(ip + `/transcription/${lectureID}?last=${true}`);
             if (!responce.ok){
                 throw new Error("XD" + responce.statusText);
             }
@@ -150,27 +152,6 @@ const LectureView = ({ notes, setNotes }) => {
         alert(`Question sent!\n "${question}"`);
         setQuestion("");
     };
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(ip + "/");
-                if (!response.ok) {
-                    throw new Error("XD" + response.statusText);
-                }
-                const data = await response.json();
-                console.log("Received data:", data);
-                setTranscription(prevTranscription => prevTranscription + " " + data.text);
-            } catch (error) {
-                console.error("ERROR", error);
-            }
-        };
-
-        // fetchData();
-        const intervalId = setInterval(fetchData, 10000);
-
-        return () => clearInterval(intervalId);
-    }, []);
 
     const quillModules = {
         toolbar: [

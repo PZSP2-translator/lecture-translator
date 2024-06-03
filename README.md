@@ -15,16 +15,40 @@ uczestnictwa w przedmiotach oferowanych przez Politechnikę Warszawską, które 
 prowadzone tylko w języku polskim.
 
 
-## To run docker
+## starting the application
+the following tutorial assumes that your setup is windows => wsl2 => docker containers
+the docker-compose for api-frontend will work without any needed changes if the setup is different, however the docker-compose for microphone will need to be rewritten depending no your setup.
 
-needed to have npm, node installed
+## starting api + frontend
 
-następnie z poziomu folderu translator/frontend:
+### add firewall + proxy rules
+add a firewall rule to allow tcp connections to port 3000 and port 5000
 
-```npm start```
+in terminal with administrator rights:
+ipconfig - find wsl2 ipv4 address
+netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=[wsl2ip]
+netsh interface portproxy add v4tov4 listenport=5000 listenaddress=0.0.0.0 connectport=5000 connectaddress=[wsl2ip]
 
-### starting microphone
-the docker-compose assumes that your setup is windows => WSL2 = > docker containers, you will most likely have to edit the microphone container, if your setup is different
+keep in mind, ubuntu on wsl2 address changes every time you reboot wsl, so you need to readd the rule everytime after reset (might change? after testing this does not seem to be true)
+
+### install npm + node
+
+need to have npm, node installed
+
+### start frontend + api
+in your wsl2 terminal:
+navigate to the folder you want to clone to
+git clone https://github.com/PZSP2-translator/lecture-translator.git
+navigate to app folder
+copy the "password" file to it
+navigate to frontend folder
+```npm install``` (before first use)
+navigate to build-api-frontend folder
+chmod +x build.sh
+./build.sh [address of your computer in local network (if using windows to wsl setup, the windows address)]
+example - ./build.sh 192.168.1.1
+
+## starting microphone
 
 in your wsl2 terminal:
 navigate to the folder you want to clone to
@@ -32,24 +56,10 @@ git clone https://github.com/PZSP2-translator/lecture-translator.git
 navigate to build-microphone
 ```docker-compose up --build```
 
-docker exec -it PZSP06_microphone python3 microphone.py [lecture_number] [server_ip_address]
+docker exec -it PZSP06_microphone python3 main.py [lecture_id] [server_ip_address]
 
-# starting api + frontend
 
-### add firewall + proxy rules
-add a firewall rule to allow tcp connections to port 3000 and port 5000
-
-keep in mind, ubuntu on wsl2 address changes every time you reboot wsl, so you need to readd the rule everytime after reset
-
-in terminal with administrator rights
-netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=[wsl2ip]
-netsh interface portproxy add v4tov4 listenport=5000 listenaddress=0.0.0.0 connectport=5000 connectaddress=[wsl2ip]
-
-in your wsl2 terminal:
-navigate to the folder you want to clone to
-git clone https://github.com/PZSP2-translator/lecture-translator.git
-navigate to frontend folder
-```npm install``` (przy pierwszym uruchomieniu)
-navigate to build-api-frontend folder
-chmod +x build.sh
-./build.sh
+#### known issues:
+if starting docker-compose in wsl returns "Error while fetching server API version: Not supported URL scheme http+docker"
+it's possible you are using a currently broken version of python requests. if so, downgrade it with:
+pip install requests==2.31.0

@@ -83,7 +83,8 @@ def transcription(id: int, last: bool = Query(False)):
 
 
 @app.post("/transcription/{id}")
-def add_transcription_req(id: int, data: TranscriptionRequest):
+def add_transcription_req(id: str, data: TranscriptionRequest):
+    print(data)
     """
     Add transcription to given lecture ID.
 
