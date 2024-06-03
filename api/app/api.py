@@ -83,12 +83,12 @@ def transcription(id: int, last: bool = Query(False)):
 
 
 @app.post("/transcription/{id}")
-def add_transcription_req(id: int, data: TranscriptionRequest):
+def add_transcription_req(id: str, data: TranscriptionRequest):
     """
     Add transcription to given lecture ID.
 
     Parameters:
-    - id (int): ID of the transcription.
+    - lecturer_code (str): Code of lecturer for backend
     - request (UserLecturesRequest): model containing the text of transcription.
     """
     add_transcription(id, data.text)

@@ -131,13 +131,17 @@ END;
 
 CREATE SEQUENCE transcription_id_seq START WITH 1;
 
-CREATE OR REPLACE PROCEDURE add_transcription(id_lecture IN INTEGER, text IN CLOB)
+CREATE OR REPLACE PROCEDURE add_transcription(lecturer_code IN VARCHAR2, text IN CLOB)
 AS
     v_transcription_id INTEGER;
+    v_lecture_id INTEGER;
 BEGIN
+    SELECT lecture_id INTO v_lecture_id
+    FROM lectures
+    WHERE lecturer_code = lecturer_code;
     SELECT transcription_id_seq.NEXTVAL INTO v_transcription_id FROM DUAL;
-    INSERT INTO TRANSCRIPTIONS (transcription_id, text, time, lecture_id)
-    VALUES (v_transcription_id, text, SYSTIMESTAMP, id_lecture);
+    INSERT INTO transcriptions (transcription_id, text, time, lecture_id)
+    VALUES (v_transcription_id, text, SYSTIMESTAMP, v_lecture_id);
     COMMIT;
 END;
 /
