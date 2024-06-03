@@ -146,17 +146,17 @@ def join_lecture(lecture_code, user_id=None, user_type="S"):
             return result, already_joined.getvalue()
 
 
-def add_transcription(lecture_id, text):
+def add_transcription(lecturer_code, text):
     """
     Adds portion of transcriptions using procedure in PL/SQL.
 
     Parameters:
-    - lecture_id (int): ID of lecture
+    - lecturer_code (str): Code of lecturer for backend
     - text (str): transcription.
     """
     with oracledb.connect(user=un, password=pw, dsn=cs) as connection:
         with connection.cursor() as cursor:
-            cursor.callproc("add_transcription", [lecture_id, text])
+            cursor.callproc("add_transcription", [lecturer_code, text])
 
 
 def get_transcription(lecture_id, last=False):
