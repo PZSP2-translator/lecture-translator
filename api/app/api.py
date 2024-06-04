@@ -115,7 +115,7 @@ async def add_question(id: int, request: AskQuestionRequest):
     - request (AskQuestionRequest): model containing the question text.
     """
 
-    if id not in questions:
+    if str(id) not in questions:
         questions[str(id)] = []
     questions[str(id)].append(request.question)
 

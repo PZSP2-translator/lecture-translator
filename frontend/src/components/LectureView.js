@@ -28,7 +28,7 @@ const LectureView = ({ notes, setNotes }) => {
             navigate(`/notes/${lastLectureID}`);
             setLectureID(lastLectureID);
         }
-        
+
         (async () => {
             if (lectureID === "-1") {
                 return;
@@ -133,7 +133,7 @@ const LectureView = ({ notes, setNotes }) => {
 
     const handleQuestion = () => {
         console.log("MY CHANGES" + question);
-        fetch(`http://localhost:${port}/questions`, {
+        fetch(`http://localhost:${port}/questions/${lectureID}`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',

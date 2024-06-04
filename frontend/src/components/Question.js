@@ -71,7 +71,7 @@ const Question = () => {
             navigate(`/question/${lastLectureID}`);
             setLectureID(lastLectureID);
         }
-        
+
         (async () => {
             if (lectureID === "-1") {
                 return;
