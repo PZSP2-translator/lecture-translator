@@ -9,6 +9,7 @@ import ReactQuill from 'react-quill';
 import { port, craftTitle, getMetaData} from '../Resources';
 import { extractDate } from './utils';
 import { useUser } from './UserContext';
+import {ip} from "../Resources.js";
 
 
 
@@ -44,7 +45,8 @@ const LectureView = ({ notes, setNotes }) => {
     useEffect(() => {
         const fetchData = async()=>{
             try{
-            const responce = await fetch(`http://localhost:${port}/`);
+            // const responce = await fetch(ip + "/transcription/" + lectureID);
+            const responce = await fetch(ip + `/transcription/${lectureID}?last=${true}`);
             if (!responce.ok){
                 throw new Error("XD" + responce.statusText);
             }
@@ -181,27 +183,6 @@ useEffect(() => {
         setQuestion("");
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch("http://127.0.0.1:5000/");
-                if (!response.ok) {
-                    throw new Error("XD" + response.statusText);
-                }
-                const data = await response.json();
-                console.log("Received data:", data);
-                setTranscription(prevTranscription => prevTranscription + " " + data.text);
-            } catch (error) {
-                console.error("ERROR", error);
-            }
-        };
-
-        // fetchData();
-        const intervalId = setInterval(fetchData, 10000);
-
-        return () => clearInterval(intervalId);
-    }, []);
-
     const quillModules = {
         toolbar: [
             [{ 'header': [1, 2, false] }],
@@ -216,7 +197,7 @@ useEffect(() => {
     useEffect(() => {
         const fetchLecture = async () => {
             try {
-                const response = await fetch(`http://localhost:${port}/lecture/${lectureID}`);
+                const response = await fetch(ip + `/lecture/${lectureID}`);
                 if (!response.ok) {
                     throw new Error("XD" + response.statusText);
                 }

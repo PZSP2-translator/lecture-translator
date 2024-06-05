@@ -10,25 +10,25 @@ import whisper, os
 
 
 class TestLectureTranscriber(unittest.TestCase):
-    
+
     def setUp(self):
         self.transcriber = LectureTranscriber('TESTcode', '127.0.0.1')
-    
+
     @patch('main.write')
     @patch('main.AudioSegment.from_wav')
     @patch('main.S.detect_silence')
     def test_process_audio(self, mock_detect_silence, mock_from_wav, mock_write):
         indata = np.random.rand(44100, 1).astype('float32')
-        
+
         mock_audio_segment = MagicMock()
         mock_from_wav.return_value = mock_audio_segment
         mock_audio_segment.dBFS = -20
         mock_detect_silence.return_value = [(1000, 2000)]
 
         result = self.transcriber.process_audio(indata)
-        
+
         expected_cutting_point = ((2000 + 1000) // 2) * FREQ // 1000
-        
+
         self.assertEqual(result, expected_cutting_point)
         mock_write.assert_called_once()
         mock_from_wav.assert_called_once()
@@ -47,8 +47,8 @@ class TestLectureTranscriber(unittest.TestCase):
         mock_detect_silence.return_value = []
 
         result = self.transcriber.process_audio(indata)
-        
-        self.assertEqual(result, len(indata)) 
+
+        self.assertEqual(result, len(indata))
         mock_write.assert_called_once()
         mock_from_wav.assert_called_once()
         mock_detect_silence.assert_called_once_with(mock_audio_segment, min_silence_len=100, silence_thresh=-80)
@@ -78,8 +78,8 @@ class TestPolishToEnglishTranslation(unittest.TestCase):
 class TestPolishToEnglishTranslationReal(unittest.TestCase):
     def test_translation_pl_to_en_real(self):
         input_text = "przykładowy początek wykładu"
-        expected_translation = "sample beginning of a lecture" 
-        
+        expected_translation = "sample beginning of a lecture"
+
         result = translate_pl_to_en(input_text)
         self.assertIsInstance(result, str)
         self.assertTrue(len(result) > 0)
@@ -91,7 +91,7 @@ class TestRealAudioTranscription(unittest.TestCase):
         self.model = whisper.load_model("base")
 
     def test_real_audio_transcription(self):
-        base_dir = "backend/"
+        base_dir = "/home/palyska/pzsp2/lecture-translator/backend/"
         audio_file_path = os.path.join(base_dir, "sample1.wav")
 
         self.assertTrue(os.path.exists(audio_file_path), "Audio file does not exist")
@@ -102,11 +102,11 @@ class TestRealAudioTranscription(unittest.TestCase):
         self.assertEqual(result, expected_transcription)
 
     def test_real_audio_transcription_second(self):
-        base_dir = "backend/"
+        base_dir = "/home/palyska/pzsp2/lecture-translator/backend/"
         second_audio_file_path = os.path.join(base_dir, "sample2.wav")
 
         self.assertTrue(os.path.exists(second_audio_file_path), "Audio file does not exist")
 
         result = self.model.transcribe(second_audio_file_path, language="pl")['text']
-        expected_transcription = " Dzień dobry, to jest mój pierwszy wykład. Zapraszam."  
+        expected_transcription = " Dzień dobry, to jest mój pierwszy wykład. Zapraszam."
         self.assertEqual(result, expected_transcription)

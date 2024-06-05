@@ -85,7 +85,7 @@ const Question = () => {
     useEffect(() => {
         const fetchData = async()=>{
             try{
-                const responce = await fetch(`http://localhost:${port}/questions/${lectureID}`);
+                const responce = await fetch(ip + `/questions/${lectureID}`);
                 if (!responce.ok){
                     throw new Error("XD" + responce.statusText);
                 }
@@ -108,7 +108,7 @@ const Question = () => {
     useEffect(() => {
         const fetchLecture = async () => {
             try {
-                const response = await fetch(`http://localhost:${port}/lecture/${lectureID}`);
+                const response = await fetch(ip + `/lecture/${lectureID}`);
                 if (!response.ok) {
                     throw new Error("XD" + response.statusText);
                 }
