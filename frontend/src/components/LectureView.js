@@ -8,6 +8,7 @@ import 'react-quill/dist/quill.snow.css';
 import ReactQuill from 'react-quill';
 import { port, craftTitle, getMetaData} from '../Resources';
 import { extractDate } from './utils';
+import { useUser } from './UserContext';
 
 
 
@@ -20,6 +21,7 @@ const LectureView = ({ notes, setNotes }) => {
     const [link, setLink] = useState("");
     const [lectureID, setLectureID] = useState(useParams().id);
     const [lastLectureID, setLastLectureID] = useState(sessionStorage.getItem("lastLectureID"))
+    const {user} = useUser();
 
     const navigate = useNavigate();
 
@@ -60,6 +62,34 @@ const LectureView = ({ notes, setNotes }) => {
 
     return () => clearInterval(intervalId);
 }, []);
+
+useEffect(() => {
+    const saveNotesDB = async () => {
+        if (user) {
+            fetch(`http://localhost:${port}/note`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "user_id": user.id,
+                    "lecture_id": lectureID,
+                    "text": localNotes
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Note saved:', user.id, lectureID);
+                console.log(localNotes);
+            })
+            .catch((error) => console.error('Error saving note to db:', error));
+        }
+    };
+
+    const intervalId = setInterval(saveNotesDB, 10000);
+
+    return () => clearInterval(intervalId);
+    }, []);
 
 
     const saveNotes = () => {
@@ -191,13 +221,36 @@ const LectureView = ({ notes, setNotes }) => {
                     throw new Error("XD" + response.statusText);
                 }
                 const data = await response.json();
-                // setLink(data[4])
+                setLink(data[4])
             } catch (error) {
                 console.error("ERROR", error);
             }
         };
+        const fetchNotes = async () => {
+            if (user) {
+                const url = `http://localhost:${port}/note/${user.id}?lecture_id=${lectureID}`;
+
+                fetch(url, {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data){
+                        setLocalNotes(data);
+                    }
+                })
+                .catch((error) => console.error('Error:', error));
+            }
+        };
         fetchLecture();
+        fetchNotes();
     }, []);
+
+
+
 
     return (
         <div className="component-container-lectureview">

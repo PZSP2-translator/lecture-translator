@@ -249,11 +249,13 @@ def get_note(user_id, lecture_id):
                 """
 select note
 from participants
-where user_id=:1 and lecture_id:=2""",
+where user_id=:1 and lecture_id=:2""",
                 [user_id, lecture_id],
             ):
-
-                return row
+                note = row[0]
+                if isinstance(note, oracledb.LOB):
+                    note = note.read()
+                return note
 
 
 def get_lecture_metadata(lecture_id):

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Path
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import (
@@ -314,18 +314,19 @@ class NoteRequest(BaseModel):
     lecture_id: int
 
 
-@app.get("/note")
-def get_note_req(note_req: NoteRequest):
+@app.get("/note/{id}")
+def get_note_req(id: int = Path(...), lecture_id: int = Query(...)):
     """
     Returns a note for the given user and lecture.
 
     Parameters:
-    - note_req (NoteRequest): model containing user ID and lecture ID.
+    - id (int): ID of the user.
+    - lecture_id (int): ID of the lecture.
 
     Returns:
     - str: note in html format
     """
-    return get_note(note_req.user_id, note_req.lecture_id)
+    return get_note(id, lecture_id)
 
 
 class NoteRequestPost(NoteRequest):
@@ -341,4 +342,7 @@ def save_note(note_req: NoteRequestPost):
     - note_req (NoteRequestPost): model containing user ID, lecture ID, and note text.
 
     """
-    add_note(note_req.user_id, note_req.lecture_id, note_req.text)
+    try:
+        add_note(note_req.user_id, note_req.lecture_id, note_req.text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
