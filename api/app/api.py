@@ -67,7 +67,7 @@ class TranscriptionRequest(BaseModel):
     text: str
 
 
-@app.get("/transcription/{id}?")
+@app.get("/transcription/{id}")
 def transcription(id: int, last: bool = Query(False)):
     """
     Returns the transcription for given lecture id.
