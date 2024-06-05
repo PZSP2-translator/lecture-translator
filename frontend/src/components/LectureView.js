@@ -52,23 +52,22 @@ const LectureView = ({ notes, setNotes }) => {
                 }
                 const data = await response.json();
                 // console.log("Received data:", data);
-
-
+                console.log("last", transcription)
+                console.log("new", data.text)
+                console.log("check:", transcription.includes(data.text))
                 if (!transcription.includes(data.text)) {
                     setTranscription(prevTranscription => prevTranscription + " " + data.text);
-                    // setLastTranscription(data.text);
-                    // console.log(lastTranscription);
                 }
             } catch (error) {
                 console.error("ERROR", error);
             }
     };
 
-    // fetchData();
+    //fetchData();
     const intervalId = setInterval(fetchData, 10000);
 
     return () => clearInterval(intervalId);
-}, [lastTranscription]);
+}, [transcription, lectureID]);
 
 useEffect(() => {
     const saveNotesDB = async () => {
