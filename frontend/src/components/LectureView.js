@@ -19,6 +19,7 @@ const LectureView = ({ notes, setNotes }) => {
     const [title, setTitle] = useState("Lecture");
     const [question, setQuestion] = useState("");
     const [transcription, setTranscription] = useState("");
+    const [lastTranscription, setLastTranscription] = useState("");
     const [link, setLink] = useState("");
     const [lectureID, setLectureID] = useState(useParams().id);
     const [lastLectureID, setLastLectureID] = useState(sessionStorage.getItem("lastLectureID"))
@@ -44,17 +45,21 @@ const LectureView = ({ notes, setNotes }) => {
 
     useEffect(() => {
         const fetchData = async()=>{
-            try{
-            // const responce = await fetch(ip + "/transcription/" + lectureID);
-            const responce = await fetch(ip + `/transcription/${lectureID}?last=${true}`);
-            if (!responce.ok){
-                throw new Error("XD" + responce.statusText);
-            }
-            const data = await responce.json();
-            console.log("Received data:", data);
-            setTranscription(prevTranscription =>prevTranscription  + " " + data.text);
-            }
-            catch (error){
+            try {
+                const response = await fetch(`${ip}/transcription/${lectureID}?last=${true}`);
+                if (!response.ok) {
+                    throw new Error("XD" + response.statusText);
+                }
+                const data = await response.json();
+                // console.log("Received data:", data);
+
+
+                if (!transcription.includes(data.text)) {
+                    setTranscription(prevTranscription => prevTranscription + " " + data.text);
+                    // setLastTranscription(data.text);
+                    // console.log(lastTranscription);
+                }
+            } catch (error) {
                 console.error("ERROR", error);
             }
     };
@@ -63,7 +68,7 @@ const LectureView = ({ notes, setNotes }) => {
     const intervalId = setInterval(fetchData, 10000);
 
     return () => clearInterval(intervalId);
-}, []);
+}, [lastTranscription]);
 
 useEffect(() => {
     const saveNotesDB = async () => {
@@ -91,7 +96,7 @@ useEffect(() => {
     const intervalId = setInterval(saveNotesDB, 10000);
 
     return () => clearInterval(intervalId);
-    }, []);
+    }, [localNotes]);
 
 
     const saveNotes = () => {
@@ -226,9 +231,27 @@ useEffect(() => {
                 .catch((error) => console.error('Error:', error));
             }
         };
+        const fetchTranscription = async()=>{
+            try {
+                const response = await fetch(`${ip}/transcription/${lectureID}`);
+                if (!response.ok) {
+                    throw new Error("XD" + response.statusText);
+                }
+                const data = await response.json();
+                console.log("Received data:", data);
+                if (data.text !== lastTranscription) {
+                    setTranscription(prevTranscription => prevTranscription + " " + data.text);
+                    setLastTranscription(data.text);
+                    console.log(lastTranscription);
+                }
+            } catch (error) {
+                console.error("ERROR", error);
+            }
+        };
         fetchLecture();
         fetchNotes();
-    }, []);
+        fetchTranscription();
+    }, [ip, lectureID]);
 
 
 
