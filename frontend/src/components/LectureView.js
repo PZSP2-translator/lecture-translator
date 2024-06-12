@@ -54,7 +54,7 @@ const LectureView = ({ notes, setNotes }) => {
                 console.log("last", transcription)
                 console.log("new", data.text)
                 console.log("check:", transcription.includes(data.text))
-                if (!transcription.includes(data.text)) {
+                if (!transcription.includes(data.text) && data.text !== null) {
                     setTranscription(prevTranscription => prevTranscription + " " + data.text);
                 }
             } catch (error) {
@@ -237,7 +237,10 @@ useEffect(() => {
                 }
                 const data = await response.json();
                 console.log("Received data:", data);
-                setTranscription(prevTranscription => prevTranscription + " " + data.text);
+                if (data.text !== null){
+                    setTranscription(prevTranscription => prevTranscription + " " + data.text);
+                }
+
             } catch (error) {
                 console.error("ERROR", error);
             }
