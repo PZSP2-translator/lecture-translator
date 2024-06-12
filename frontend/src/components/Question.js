@@ -18,9 +18,9 @@ const Question = () => {
     const [lastLectureID, setLastLectureID] = useState(sessionStorage.getItem("lastLectureID"));
     const [lectureID, setLectureID] = useState(useParams().id);
 
-    const handleAnswer = (index) => { // TODO, usunąć selected? nie aktualizuje się na czas!!!
+    const handleAnswer = async (index) => { // TODO, usunąć selected? nie aktualizuje się na czas!!!
 //        setSelected(index);
-        fetch(`${ip}/question/${lectureID}`, {
+        await fetch(`${ip}/question/${lectureID}`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',
