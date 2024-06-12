@@ -7,6 +7,7 @@ import {useUser} from './UserContext';
 const Header = () => {
   const navigate = useNavigate();
   const { user, logout } = useUser();
+  var usertype = sessionStorage.getItem("usertype");
 
   const handleLogout = () => {
     logout()
@@ -19,16 +20,21 @@ const Header = () => {
         <Link to="/">
           <img src={logoImage} alt="Home" className="image" />
         </Link>
-          <Link to="/notes/-1" className='no-underscore'>
+          {usertype && (
+            <Link to="/notes/-1" className='no-underscore'>
             <div className="frame">
               <div className="link">Notes</div>
             </div>
-          </Link>
-          <Link to="/question/-1" className='no-underscore'>
+            </Link>
+          )}
+          {usertype==="L" && (
+            <Link to="/question/-1" className='no-underscore'>
             <div className="frame">
               <div className="link">Questions</div>
             </div>
-          </Link>
+            </Link>
+
+          )}
           {user && (
             <>
               <Link to="/history" className='no-underscore'>

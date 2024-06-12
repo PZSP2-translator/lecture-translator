@@ -37,6 +37,8 @@ const HomePage = () => {
             navigator.clipboard.writeText(data.lecturer_code).then(() => alert(`Code for ${title} is \n ${data.lecturer_code} \n /it was copied to your clipboard/`))
 
             sessionStorage.setItem("lastLectureID", data.lecture_id);
+            sessionStorage.setItem("usertype", "L")
+
             navigate(`/question/${data.lecture_id}`)
             } catch (error) {
             console.error("Error during creating lecture:", error);
@@ -46,7 +48,7 @@ const HomePage = () => {
     const handleJoin = async () => {
             try {
                 const requestBody = { lecture_code: lectureCode };
-                
+
                 if (user) {
                     requestBody.user_id = user.id;
                 }
@@ -60,11 +62,12 @@ const HomePage = () => {
                 if (!response.ok) {
                     throw new Error("Error fetching data");
                 }
-                
+
                 const data = await response.json();
                 console.log(data.lecture_id)
-                
+
                 sessionStorage.setItem("lastLectureID", data.lecture_id);
+                sessionStorage.setItem("usertype", "S")
                 navigate(`/notes/${data.lecture_id}`)
                 } catch (error) {
                 console.error("Error during joining lecture:", error);

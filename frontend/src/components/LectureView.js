@@ -19,7 +19,6 @@ const LectureView = ({ notes, setNotes }) => {
     const [title, setTitle] = useState("Lecture");
     const [question, setQuestion] = useState("");
     const [transcription, setTranscription] = useState("");
-    const [lastTranscription, setLastTranscription] = useState("");
     const [link, setLink] = useState("");
     const [lectureID, setLectureID] = useState(useParams().id);
     const [lastLectureID, setLastLectureID] = useState(sessionStorage.getItem("lastLectureID"))
@@ -238,11 +237,7 @@ useEffect(() => {
                 }
                 const data = await response.json();
                 console.log("Received data:", data);
-                if (data.text !== lastTranscription) {
-                    setTranscription(prevTranscription => prevTranscription + " " + data.text);
-                    setLastTranscription(data.text);
-                    console.log(lastTranscription);
-                }
+                setTranscription(prevTranscription => prevTranscription + " " + data.text);
             } catch (error) {
                 console.error("ERROR", error);
             }
