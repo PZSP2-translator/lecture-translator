@@ -72,7 +72,7 @@ const LectureView = ({ notes, setNotes }) => {
 useEffect(() => {
     const saveNotesDB = async () => {
         if (user) {
-            fetch(`http://localhost:${port}/note`, {
+            await fetch(`${ip}/note`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -167,9 +167,9 @@ useEffect(() => {
         pdf.save('exportedNotes.pdf');
       };
 
-    const handleQuestion = () => {
+    const handleQuestion = async () => {
         console.log("MY CHANGES" + question);
-        fetch(`http://localhost:${port}/questions/${lectureID}`, {
+        await fetch(`${ip}/questions/${lectureID}`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -213,9 +213,9 @@ useEffect(() => {
         };
         const fetchNotes = async () => {
             if (user) {
-                const url = `http://localhost:${port}/note/${user.id}?lecture_id=${lectureID}`;
+                const url = `${ip}/note/${user.id}?lecture_id=${lectureID}`;
 
-                fetch(url, {
+                await fetch(url, {
                     method: "GET",
                     headers: {
                         'Content-Type': 'application/json',
@@ -238,11 +238,7 @@ useEffect(() => {
                 }
                 const data = await response.json();
                 console.log("Received data:", data);
-                if (data.text !== lastTranscription) {
                     setTranscription(prevTranscription => prevTranscription + " " + data.text);
-                    setLastTranscription(data.text);
-                    console.log(lastTranscription);
-                }
             } catch (error) {
                 console.error("ERROR", error);
             }

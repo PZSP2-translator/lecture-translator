@@ -13,8 +13,8 @@ export async function craftTitle(code) {
     return `${title} ${date} ---- Code: ${lectureCode}`;
 }
 
-export function getMetaData(lectureID) {
-    return fetch(`http://localhost:${port}/lecture/${lectureID}`, {
+export async function getMetaData(lectureID) {
+    return await fetch(`${ip}/lecture/${lectureID}`, {
         method: "GET",
         headers: {
             'Content-Type': 'application/json',

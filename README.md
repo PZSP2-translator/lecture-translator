@@ -41,10 +41,17 @@ the docker-compose for api-frontend will work without any needed changes if the 
 
 add a firewall rule to allow tcp connections to port 3000 and port 5000
 
-in terminal with administrator rights:
-ipconfig - find wsl2 ipv4 address
-netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=[wsl2ip]
-netsh interface portproxy add v4tov4 listenport=5000 listenaddress=0.0.0.0 connectport=5000 connectaddress=[wsl2ip]
+in wsl terminal:
+
+```ifconfig```
+
+under eth0, you should have the ip address of the WSL2
+
+in terminal with administrator rights (windows):
+
+```netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=[wsl2ip]```
+
+```netsh interface portproxy add v4tov4 listenport=5000 listenaddress=0.0.0.0 connectport=5000 connectaddress=[wsl2ip]```
 
 keep in mind, ubuntu on wsl2 address changes every time you reboot wsl, so you need to readd the rule everytime after reset (might change? after testing this does not seem to be true)
 
@@ -56,25 +63,36 @@ need to have npm, node installed
 
 in your wsl2 terminal:
 navigate to the folder you want to clone to
-git clone https://github.com/PZSP2-translator/lecture-translator.git
+
+```git clone https://github.com/PZSP2-translator/lecture-translator.git```
+
 navigate to app folder
 copy the "password" file to it
 navigate to frontend folder
-`npm install` (before first use)
+
+```npm install``` (before first use)
+
 navigate to build-api-frontend folder
-chmod +x build.sh
-./build.sh [address of your computer in local network (if using windows to wsl setup, the windows address)]
+
+```chmod +x build.sh```
+
+```./build.sh [address of your computer in local network (if using windows to wsl setup, the windows address)]```
+
 example - ./build.sh 192.168.1.1
 
 ## starting microphone
 
 in your wsl2 terminal:
 navigate to the folder you want to clone to
-git clone https://github.com/PZSP2-translator/lecture-translator.git
-navigate to build-microphone
-`docker-compose up --build`
 
-docker exec -it PZSP06_microphone python3 main.py [lecture_id] [server_ip_address]
+```git clone https://github.com/PZSP2-translator/lecture-translator.git```
+
+navigate to build-microphone
+
+```docker-compose up --build```
+
+to start the microphone - ```docker exec -it PZSP06_microphone python3 main.py [lecture_id] [server_ip_address]```
+
 
 #### known issues:
 
